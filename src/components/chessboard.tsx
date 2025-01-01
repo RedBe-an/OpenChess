@@ -7,33 +7,6 @@ import { Chess, Square } from 'chess.js';
 
 const BOARD_SIZE = 8;
 
-const initialBoard: Board = [
-  [
-    { type: 'rook', color: 'black' },
-    { type: 'knight', color: 'black' },
-    { type: 'bishop', color: 'black' },
-    { type: 'queen', color: 'black' },
-    { type: 'king', color: 'black' },
-    { type: 'bishop', color: 'black' },
-    { type: 'knight', color: 'black' },
-    { type: 'rook', color: 'black' },
-  ],
-  Array(8).fill({ type: 'pawn', color: 'black' }),
-  ...Array(4).fill(Array(8).fill(null)),
-  Array(8).fill({ type: 'pawn', color: 'white' }),
-  [
-    { type: 'rook', color: 'white' },
-    { type: 'knight', color: 'white' },
-    { type: 'bishop', color: 'white' },
-    { type: 'queen', color: 'white' },
-    { type: 'king', color: 'white' },
-    { type: 'bishop', color: 'white' },
-    { type: 'knight', color: 'white' },
-    { type: 'rook', color: 'white' },
-  ],
-];
-
-// chess.js의 FEN 문자열을 Board 타입으로 변환하는 유틸리티 함수
 const fenToBoard = (fen: string): Board => {
   const chess = new Chess(fen);
   const board: Board = Array(8).fill(null).map(() => Array(8).fill(null));
@@ -57,40 +30,57 @@ const Chessboard: React.FC = () => {
   const [game, setGame] = useState(new Chess());
   const [board, setBoard] = useState<Board>(fenToBoard(game.fen()));
   const [selectedSquare, setSelectedSquare] = useState<[number, number] | null>(null);
+  const [lastMove, setLastMove] = useState<{ from: [number, number], to: [number, number] } | null>(null);
+  const [fen, setFen] = useState<string>(game.fen());
+  const [pgn, setPgn] = useState<string>(game.pgn());
+  const [possibleMoves, setPossibleMoves] = useState<Square[]>([]);
 
   const handleSquareClick = (row: number, col: number) => {
-    if (!selectedSquare) {
-      // 첫 번째 클릭 - 기물 선택
-      const piece = board[row][col];
-      if (piece && piece.color.charAt(0) === game.turn()) {
-        setSelectedSquare([row, col]);
-      }
+    if (selectedSquare && selectedSquare[0] === row && selectedSquare[1] === col) {
+      setSelectedSquare(null);
+      setPossibleMoves([]);
+      return;
+    }
+  
+    if (selectedSquare === null) {
+      setSelectedSquare([row, col]);
+      const fromSquare = `${String.fromCharCode(97 + col)}${BOARD_SIZE - row}` as Square;
+      const moves = game.moves({ square: fromSquare, verbose: true }).map(move => move.to);
+      setPossibleMoves(moves);
     } else {
-      // 두 번째 클릭 - 이동 시도
-      const fromSquare = `${String.fromCharCode(97 + selectedSquare[1])}${8 - selectedSquare[0]}`;
-      const toSquare = `${String.fromCharCode(97 + col)}${8 - row}`;
-      
+      const [fromRow, fromCol] = selectedSquare;
+      const fromSquare = `${String.fromCharCode(97 + fromCol)}${BOARD_SIZE - fromRow}` as Square;
+      const toSquare = `${String.fromCharCode(97 + col)}${BOARD_SIZE - row}` as Square;
+  
       try {
         const move = game.move({
           from: fromSquare,
           to: toSquare,
-          promotion: 'q' // 자동 퀸 승급
         });
-
+  
         if (move) {
           setBoard(fenToBoard(game.fen()));
+          setFen(game.fen());
+          setPgn(game.pgn());
+          setLastMove({ from: [fromRow, fromCol], to: [row, col] });
         }
-      } catch (e) {
-        console.log('유효하지 않은 이동입니다');
+      } catch (error) {
+        // 잘못된 이동은 조용히 무시
       }
-      
+  
       setSelectedSquare(null);
+      setPossibleMoves([]);
     }
   };
+
   const renderSquare = (row: number, col: number) => {
     const isLight = (row + col) % 2 === 0;
     const isSelected = selectedSquare?.[0] === row && selectedSquare?.[1] === col;
+    const isLastMoveFrom = lastMove?.from[0] === row && lastMove?.from[1] === col;
+    const isLastMoveTo = lastMove?.to[0] === row && lastMove?.to[1] === col;
     const piece = board[row][col];
+    const square = `${String.fromCharCode(97 + col)}${BOARD_SIZE - row}` as Square;
+    const isPossibleMove = possibleMoves.includes(square);
   
     return (
       <div 
@@ -100,8 +90,17 @@ const Chessboard: React.FC = () => {
         } flex items-center justify-center`}
         onClick={() => handleSquareClick(row, col)}
       >
-        {isSelected && (
-          <div className="absolute inset-0 bg-yellow-300 opacity-50 z-0" /> // z-10에서 z-0로 변경
+        {(isSelected || isLastMoveFrom || isLastMoveTo) && (
+          <div className="absolute inset-0 bg-yellow-300 opacity-50 z-0" />
+        )}
+        {isPossibleMove && (
+            <div className="absolute inset-0 flex items-center justify-center z-0">
+            {piece ? (
+              <div className="w-full h-full border-8 border-black opacity-10 rounded-full" />
+            ) : (
+              <div className="w-8 h-8 bg-black opacity-10 rounded-full" />
+            )}
+            </div>
         )}
         {piece && <ChessPiece piece={piece} className="z-10" />}
       </div>
@@ -118,12 +117,16 @@ const Chessboard: React.FC = () => {
     <div className="flex flex-col w-full h-full max-w-[95vmin] max-h-[95vmin] rounded-lg">
       <div className="flex-1 aspect-square flex flex-col">
         {Array.from({ length: BOARD_SIZE }, (_, row) => renderRow(row))}
-  
-        {selectedSquare && (
-          <p className="mt-4 text-xl text-center">
-            위치: {String.fromCharCode(97 + selectedSquare[1])}{BOARD_SIZE - selectedSquare[0]}
-          </p>
-        )}
+      </div>
+      <div className="game-info p-4 bg-gray-100 rounded my-4">
+        <div className="mb-2">
+          <span className="font-bold">FEN: </span>
+          <span className="font-mono text-sm">{fen}</span>
+        </div>
+        <div>
+          <span className="font-bold">PGN: </span>
+          <span className="font-mono text-sm whitespace-pre-wrap">{pgn}</span>
+        </div>
       </div>
     </div>
   );
