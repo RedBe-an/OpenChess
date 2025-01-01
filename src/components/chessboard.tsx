@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import ChessPiece from '@/components/ChessPiece';
-import { Board } from '@/types/chess';
+import { Board, Piece } from '@/types/chess';
+import { Chess, Square } from 'chess.js';
 
 const BOARD_SIZE = 8;
 
@@ -32,14 +33,60 @@ const initialBoard: Board = [
   ],
 ];
 
+// chess.js의 FEN 문자열을 Board 타입으로 변환하는 유틸리티 함수
+const fenToBoard = (fen: string): Board => {
+  const chess = new Chess(fen);
+  const board: Board = Array(8).fill(null).map(() => Array(8).fill(null));
+  
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const square = chess.get(`${String.fromCharCode(97 + col)}${8 - row}` as Square);
+      if (square) {
+        const piece: Piece = {
+          type: square.type as Piece['type'],
+          color: square.color as Piece['color']
+        };
+        board[row][col] = piece;
+      }
+    }
+  }
+  return board;
+};
+
 const Chessboard: React.FC = () => {
-  const [board, setBoard] = useState<Board>(initialBoard);
+  const [game, setGame] = useState(new Chess());
+  const [board, setBoard] = useState<Board>(fenToBoard(game.fen()));
   const [selectedSquare, setSelectedSquare] = useState<[number, number] | null>(null);
 
   const handleSquareClick = (row: number, col: number) => {
-    setSelectedSquare([row, col]);
-  };
+    if (!selectedSquare) {
+      // 첫 번째 클릭 - 기물 선택
+      const piece = board[row][col];
+      if (piece && piece.color.charAt(0) === game.turn()) {
+        setSelectedSquare([row, col]);
+      }
+    } else {
+      // 두 번째 클릭 - 이동 시도
+      const fromSquare = `${String.fromCharCode(97 + selectedSquare[1])}${8 - selectedSquare[0]}`;
+      const toSquare = `${String.fromCharCode(97 + col)}${8 - row}`;
+      
+      try {
+        const move = game.move({
+          from: fromSquare,
+          to: toSquare,
+          promotion: 'q' // 자동 퀸 승급
+        });
 
+        if (move) {
+          setBoard(fenToBoard(game.fen()));
+        }
+      } catch (e) {
+        console.log('유효하지 않은 이동입니다');
+      }
+      
+      setSelectedSquare(null);
+    }
+  };
   const renderSquare = (row: number, col: number) => {
     const isLight = (row + col) % 2 === 0;
     const isSelected = selectedSquare?.[0] === row && selectedSquare?.[1] === col;
