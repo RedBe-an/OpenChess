@@ -1,5 +1,5 @@
 import React from 'react';
-import { Piece, PieceType} from '@/types/chess';
+import { Piece, PieceType } from '@/types/chess';
 
 const pieceImages: Record<PieceType, { b: string; w: string }> = {
     p: { // pawn
