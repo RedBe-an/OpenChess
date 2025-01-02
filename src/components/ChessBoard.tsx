@@ -1,39 +1,33 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import ChessPiece from '@/components/ChessPiece';
-import { Board, Piece } from '@/types/chess';
+import GameInfo from '@/components/GameInfo';
+import { useChessGame } from '@/hooks/useChessGame';
+import { BOARD_SIZE, fenToBoard } from '@/lib/chess';
 import { Chess, Square } from 'chess.js';
 
-const BOARD_SIZE = 8;
-
-const fenToBoard = (fen: string): Board => {
-  const chess = new Chess(fen);
-  const board: Board = Array(8).fill(null).map(() => Array(8).fill(null));
-  
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      const square = chess.get(`${String.fromCharCode(97 + col)}${8 - row}` as Square);
-      if (square) {
-        const piece: Piece = {
-          type: square.type as Piece['type'],
-          color: square.color as Piece['color']
-        };
-        board[row][col] = piece;
-      }
-    }
-  }
-  return board;
-};
-
 const Chessboard: React.FC = () => {
-  const [game, setGame] = useState(new Chess());
-  const [board, setBoard] = useState<Board>(fenToBoard(game.fen()));
-  const [selectedSquare, setSelectedSquare] = useState<[number, number] | null>(null);
-  const [lastMove, setLastMove] = useState<{ from: [number, number], to: [number, number] } | null>(null);
-  const [fen, setFen] = useState<string>(game.fen());
-  const [pgn, setPgn] = useState<string>(game.pgn());
-  const [possibleMoves, setPossibleMoves] = useState<Square[]>([]);
+  const {
+    game,
+    board,
+    selectedSquare,
+    lastMove,
+    fen,
+    pgn,
+    possibleMoves,
+    openingInfo,
+    topGames,
+    setBoard,
+    setSelectedSquare,
+    setLastMove,
+    setFen,
+    setPgn,
+    setPossibleMoves,
+    setGame,
+    setOpeningInfo,
+    fetchOpeningInfo,
+  } = useChessGame();
 
   const handleSquareClick = (row: number, col: number) => {
     if (selectedSquare && selectedSquare[0] === row && selectedSquare[1] === col) {
@@ -56,6 +50,7 @@ const Chessboard: React.FC = () => {
         const move = game.move({
           from: fromSquare,
           to: toSquare,
+          promotion: 'q' // always promote to a queen for example simplicity
         });
   
         if (move) {
@@ -113,21 +108,54 @@ const Chessboard: React.FC = () => {
     </div>
   );
 
+
+  const resetGame = () => {
+    const newGame = new Chess();
+    setGame(newGame);
+    setBoard(fenToBoard(newGame.fen()));
+    setFen(newGame.fen());
+    setPgn(newGame.pgn());
+    setSelectedSquare(null);
+    setLastMove(null);
+    setPossibleMoves([]); 
+    setOpeningInfo(null);
+  };
+
+  const undoMove = async () => {
+    const moves = game.history();
+    const newGame = new Chess();
+    
+    moves.slice(0, -1).forEach(move => {
+      newGame.move(move);
+    });
+  
+    setGame(newGame);
+    setBoard(fenToBoard(newGame.fen()));
+    setFen(newGame.fen());
+    setPgn(newGame.pgn());
+    setSelectedSquare(null);
+    setLastMove(null);
+    setPossibleMoves([]);
+  
+    const info = await fetchOpeningInfo(newGame.fen());
+    if (info !== undefined && info !== null) {
+      setOpeningInfo(info);
+    }
+  };
+
   return (
-    <div className="flex flex-col w-full h-full max-w-[95vmin] max-h-[95vmin] rounded-lg">
+    <div className="flex flex-row gap-4 w-full h-full max-w-[95vmin] max-h-[95vmin] rounded-lg justify-center">
       <div className="flex-1 aspect-square flex flex-col">
         {Array.from({ length: BOARD_SIZE }, (_, row) => renderRow(row))}
       </div>
-      <div className="game-info p-4 bg-gray-100 rounded my-4">
-        <div className="mb-2">
-          <span className="font-bold">FEN: </span>
-          <span className="font-mono text-sm">{fen}</span>
-        </div>
-        <div>
-          <span className="font-bold">PGN: </span>
-          <span className="font-mono text-sm whitespace-pre-wrap">{pgn}</span>
-        </div>
-      </div>
+      <GameInfo 
+        fen={fen}
+        pgn={pgn}
+        openingInfo={openingInfo ?? undefined}
+        topGames={topGames}
+        onReset={resetGame}
+        onUndo={undoMove}
+      />
     </div>
   );
 };
