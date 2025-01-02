@@ -144,8 +144,8 @@ const Chessboard: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-row gap-4 w-full h-full max-w-[95vmin] max-h-[95vmin] rounded-lg justify-center">
-            <div className="grid grid-cols-8 grid-rows-8 w-[640px] h-[640px]">
+    <div className="flex flex-row gap-4 w-full h-full max-w-[90vmin] max-h-[90vmin] rounded-lg justify-center">
+      <div className="flex-1 aspect-square flex flex-col">
         {Array.from({ length: BOARD_SIZE }, (_, row) => renderRow(row))}
       </div>
       <GameInfo 
@@ -155,7 +155,7 @@ const Chessboard: React.FC = () => {
         topGames={topGames}
         onReset={resetGame}
         onUndo={undoMove}
-        isWhiteTurn={game.turn() === 'w'} // chess.js의 turn() 메서드를 사용하여 현재 턴 정보 전달
+        isWhiteTurn={game.turn() === 'w'}
       />
     </div>
   );
