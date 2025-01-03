@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import ChessPiece from '@/components/ChessPiece';
 import GameInfo from '@/components/GameInfo';
 import { useChessGame } from '@/hooks/useChessGame';
@@ -28,6 +28,7 @@ const Chessboard: React.FC = () => {
     setOpeningInfo,
     fetchOpeningInfo,
   } = useChessGame();
+
 
   const handleSquareClick = (row: number, col: number) => {
     if (selectedSquare && selectedSquare[0] === row && selectedSquare[1] === col) {
