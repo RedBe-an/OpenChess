@@ -1,9 +1,13 @@
+'use client';
+
 import { DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Dialog } from "@/components/ui/dialog"
-import { Copy } from "lucide-react"
+import { Copy, Share } from "lucide-react"
 import { useCallback } from "react"
 import { DialogTrigger } from "@radix-ui/react-dialog"
+import { useToast } from "@/hooks/use-toast"
+
 
 interface ShareButtonProps {
   fen: string
@@ -11,14 +15,27 @@ interface ShareButtonProps {
 }
 
 export function ShareButton({ fen, pgn }: ShareButtonProps) {
+  const { toast } = useToast();
   const copyToClipboard = useCallback((text: string) => {
-    navigator.clipboard.writeText(text)
-  }, [])
+    try {
+      navigator.clipboard.writeText(text)
+      toast({
+        title: "복사가 성공했습니다!",
+        description: "클립보드로 복사가 성공했습니다.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "복사 중 에러가 발생했습니다.",
+        description: `에러: ${error}`,
+      })
+    }
+  }, [toast])
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">공유</Button>
+        <Button variant="outline"><Share />공유</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
