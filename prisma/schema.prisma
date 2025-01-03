@@ -9,11 +9,10 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id         Int      @id @default(autoincrement())
-  username   String   @unique
-  email      String   @unique
-  password   String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+model Opening {
+  id               Int      @id @default(autoincrement())
+  opening_name     String   @unique
+  description_file String   @unique
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
 }
