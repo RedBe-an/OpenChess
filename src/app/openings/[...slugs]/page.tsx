@@ -3,16 +3,16 @@ import { getMdxContent } from '@/lib/mdx'
 import prisma from '@/lib/prisma'
 
 interface PageProps {
-  params: Promise<{
-    slugs: string[];
-  }>;
+  params: {
+    slugs: string[]
+  }
 }
 
 export default async function OpeningPage({
   params
 }: PageProps) {
   
-  const {slugs} = await params;
+  const { slugs } = await params;
   
   if (!slugs?.length) {
     return notFound()
