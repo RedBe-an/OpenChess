@@ -8,6 +8,9 @@ export default {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+	fontFamily: {
+	  sans: ["Noto Sans KR", 'sans-serif']
+	},
   	extend: {
   		colors: {
   			background: 'hsl(var(--background))',
@@ -82,5 +85,5 @@ export default {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require('@tailwindcss/typography'),],
 } satisfies Config;
