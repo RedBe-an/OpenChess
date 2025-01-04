@@ -2,18 +2,22 @@ import { notFound } from 'next/navigation'
 import { getMdxContent } from '@/lib/mdx'
 import prisma from '@/lib/prisma'
 
+interface PageProps {
+  params: Promise<{
+    slugs: string[];
+  }>;
+}
+
 export default async function OpeningPage({
   params
-}: {
-  params: { slugs: string[] }
-}) {
+}: PageProps) {
   const resolvedParams = await params;
   
   if (!resolvedParams?.slugs?.length) {
     return notFound()
   }
 
-  const openingName = await resolvedParams.slugs.join('/')
+  const openingName = resolvedParams.slugs.join('/')
     
   const opening = await prisma.opening.findUnique({
     where: { 
