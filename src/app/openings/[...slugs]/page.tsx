@@ -3,15 +3,20 @@ import { getMdxContent } from '@/lib/mdx'
 import prisma from '@/lib/prisma'
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slugs: string[];
-  }
+  }>;
 }
 
 export default async function OpeningPage({
   params
 }: PageProps) {
-  const { slugs } = await params;
+  
+  const {slugs} = await params;
+  
+  if (!slugs?.length) {
+    return notFound()
+  }
 
   const openingName = slugs.join('/')
     
@@ -22,6 +27,7 @@ export default async function OpeningPage({
   })
 
   if (!opening) {
+    console.error('Opening not found:', openingName)
     return notFound()
   }
 
