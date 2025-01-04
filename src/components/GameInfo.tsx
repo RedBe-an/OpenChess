@@ -4,6 +4,7 @@ import React from "react";
 import { Button } from "./ui/button";
 import { CircleHelp, RotateCcw } from "lucide-react"
 import { ShareButton } from "./ShareButton";
+import { normalizeFileName } from "@/lib/utils";
 
 interface GameInfoProps {
   fen: string;
@@ -28,9 +29,14 @@ const GameInfo = ({ fen, pgn, openingInfo, onReset, onUndo}: GameInfoProps) => {
             <div key="opening-info">
               <CircleHelp className="mb-4"/>
               이 오프닝은 {" "}
-              <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
-                {openingInfo.name}
-              </code>
+                <a 
+                href={`/openings/${normalizeFileName(openingInfo?.name ?? '')}`}
+                className="hover:underline"
+                >
+                <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+                  {openingInfo.name}
+                </code>
+                </a>
               {" "}입니다.
             </div>
           ) : (
