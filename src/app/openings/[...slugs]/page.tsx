@@ -21,7 +21,7 @@ export default async function OpeningPage({ params }: OpeningPageProps) {
   
   try {
     // DB에서 오프닝 정보 조회
-    const opening = await prisma.opening.findUnique({
+    const opening = await prisma.openings.findUnique({
       where: {
         opening_name: openingPath
       }
