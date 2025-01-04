@@ -9,10 +9,12 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model opening {
-  id               Int      @id @default(autoincrement())
-  opening_name     String   @unique
-  description_file String   @unique
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+model Opening {
+  id                Int       @id @default(autoincrement())
+  opening_name      String    @unique
+  description_file  String    @unique
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  @@map("openings")
 }
