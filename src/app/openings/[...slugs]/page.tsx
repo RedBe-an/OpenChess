@@ -1,3 +1,5 @@
+'use client';
+
 import { notFound } from 'next/navigation'
 import { getMdxContent } from '@/lib/mdx'
 import prisma from '@/lib/prisma'
