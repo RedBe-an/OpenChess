@@ -9,7 +9,7 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Opening {
+model opening {
   id               Int      @id @default(autoincrement())
   opening_name     String   @unique
   description_file String   @unique
