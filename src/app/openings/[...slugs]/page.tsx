@@ -13,7 +13,7 @@ export default async function OpeningPage({
     return notFound()
   }
 
-  const openingName = resolvedParams.slugs.join('/')
+  const openingName = await resolvedParams.slugs.join('/')
     
   const opening = await prisma.opening.findUnique({
     where: { 
