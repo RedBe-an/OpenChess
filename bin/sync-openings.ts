@@ -40,7 +40,7 @@ async function syncOpenings() {
 
 
       // Database에 정보 저장
-      await prisma.opening.upsert({
+      await prisma.openings.upsert({
         where: { opening_name: normalizedFileName },
         update: { 
           description_file: publicUrl,
