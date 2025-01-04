@@ -3,21 +3,17 @@ import { getMdxContent } from '@/lib/mdx'
 import prisma from '@/lib/prisma'
 
 interface PageProps {
-  params: Promise<{
+  params: {
     slugs: string[];
-  }>;
+  }
 }
 
 export default async function OpeningPage({
   params
 }: PageProps) {
-  const resolvedParams = await params;
-  
-  if (!resolvedParams?.slugs?.length) {
-    return notFound()
-  }
+  const { slugs } = await params;
 
-  const openingName = resolvedParams.slugs.join('/')
+  const openingName = slugs.join('/')
     
   const opening = await prisma.opening.findUnique({
     where: { 
@@ -26,7 +22,6 @@ export default async function OpeningPage({
   })
 
   if (!opening) {
-    console.error('Opening not found:', openingName)
     return notFound()
   }
 
