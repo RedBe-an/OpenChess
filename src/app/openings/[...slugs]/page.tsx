@@ -7,11 +7,13 @@ export default async function OpeningPage({
 }: {
   params: { slugs: string[] }
 }) {
-  if (!params?.slugs?.length) {
+  const resolvedParams = await params;
+  
+  if (!resolvedParams?.slugs?.length) {
     return notFound()
   }
 
-  const openingName = params.slugs.join('/')
+  const openingName = resolvedParams.slugs.join('/')
     
   const opening = await prisma.opening.findUnique({
     where: { 
