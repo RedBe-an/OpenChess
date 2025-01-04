@@ -9,8 +9,7 @@ type OpeningPageProps = {
 }
 
 export default async function OpeningPage({ params }: OpeningPageProps) {
-  // params를 await
-  const resolvedParams = await params
+  const resolvedParams = await params;
   
   // 슬러그가 없으면 404
   if (!resolvedParams.slugs?.length) {
@@ -23,7 +22,7 @@ export default async function OpeningPage({ params }: OpeningPageProps) {
   try {
     // DB에서 오프닝 정보 조회
     const opening = await prisma.opening.findUnique({
-      where: { 
+      where: {
         opening_name: openingPath
       }
     })
