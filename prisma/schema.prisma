@@ -7,12 +7,15 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+  
 }
 
-model Opening {
+model Openings {
   id               Int      @id @default(autoincrement())
   opening_name     String   @unique
   description_file String   @unique
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
+
+  @@map("openings")
 }

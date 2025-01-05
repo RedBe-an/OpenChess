@@ -1,6 +1,7 @@
-import { NextConfig } from "next";
+import nextMDX from '@next/mdx';
 
-const nextConfig : NextConfig = {
+const nextConfig: import('next').NextConfig = {
+  pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
   async rewrites() {
     const rewrites = {
       beforeFiles: [],
@@ -23,4 +24,13 @@ const nextConfig : NextConfig = {
   }
 };
 
-module.exports = nextConfig;
+const withMDX = nextMDX({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [],
+    rehypePlugins: [],
+  },
+});
+
+// Merge MDX config with Next.js config
+export default withMDX(nextConfig)
