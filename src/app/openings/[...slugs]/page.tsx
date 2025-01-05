@@ -38,7 +38,7 @@ export default async function OpeningPage({ params }: OpeningPageProps) {
     console.log('DB query result:', opening)
 
     if (!opening) {
-      console.error(`Opening not found in database: ${openingPath}`)
+      console.error(`Opening not found in database: ${openingPath}`)  // 여기에 걸리고 있음
       return notFound()
     }
 
