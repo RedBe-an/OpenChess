@@ -1,9 +1,9 @@
-export type PieceType = 'p' | 'n' | 'b' | 'r' | 'q' | 'k';
+export type PieceType = "p" | "n" | "b" | "r" | "q" | "k";
 
 export type Piece = {
-    type: PieceType;
-    color: 'b' | 'w';
-}
+  type: PieceType;
+  color: "b" | "w";
+};
 
 export type Board = (Piece | null)[][];
 
@@ -17,6 +17,6 @@ export interface topGames {
   id: string;
   white: { name: string; rating: number };
   black: { name: string; rating: number };
-  winner?: 'white' | 'black' | 'draw';
+  winner?: "white" | "black" | "draw";
   year: number;
 }

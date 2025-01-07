@@ -1,48 +1,60 @@
-'use client';
+"use client";
 
-import { DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Dialog } from "@/components/ui/dialog"
-import { Copy, Share } from "lucide-react"
-import { useCallback } from "react"
-import { DialogTrigger } from "@radix-ui/react-dialog"
-import { useToast } from "@/hooks/use-toast"
-
+import {
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
+import { Copy, Share } from "lucide-react";
+import { useCallback } from "react";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface ShareButtonProps {
-  fen: string
-  pgn: string
+  fen: string;
+  pgn: string;
 }
 
 export function ShareButton({ fen, pgn }: ShareButtonProps) {
   const { toast } = useToast();
-  const copyToClipboard = useCallback((text: string) => {
-    try {
-      navigator.clipboard.writeText(text)
-      toast({
-        title: "복사가 성공했습니다!",
-        description: "클립보드로 복사가 성공했습니다.",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "복사 중 에러가 발생했습니다.",
-        description: `에러: ${error}`,
-      })
-    }
-  }, [toast])
+  const copyToClipboard = useCallback(
+    (text: string) => {
+      try {
+        navigator.clipboard.writeText(text);
+        toast({
+          title: "복사가 성공했습니다!",
+          description: "클립보드로 복사가 성공했습니다.",
+        });
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "복사 중 에러가 발생했습니다.",
+          description: `에러: ${error}`,
+        });
+      }
+    },
+    [toast],
+  );
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline"><Share />공유</Button>
+        <Button variant="outline">
+          <Share />
+          공유
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>게임 공유</DialogTitle>
           <DialogDescription>현재 게임 상태를 복사하세요.</DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
             <div className="grid flex-1 gap-2">
@@ -52,7 +64,11 @@ export function ShareButton({ fen, pgn }: ShareButtonProps) {
                 readOnly
               />
             </div>
-            <Button onClick={() => copyToClipboard(fen)} size="sm" className="px-3">
+            <Button
+              onClick={() => copyToClipboard(fen)}
+              size="sm"
+              className="px-3"
+            >
               <span className="sr-only">Copy FEN</span>
               <Copy className="h-4 w-4" />
             </Button>
@@ -66,7 +82,11 @@ export function ShareButton({ fen, pgn }: ShareButtonProps) {
                 readOnly
               />
             </div>
-            <Button onClick={() => copyToClipboard(pgn)} size="sm" className="px-3">
+            <Button
+              onClick={() => copyToClipboard(pgn)}
+              size="sm"
+              className="px-3"
+            >
               <span className="sr-only">Copy PGN</span>
               <Copy className="h-4 w-4" />
             </Button>
@@ -82,5 +102,5 @@ export function ShareButton({ fen, pgn }: ShareButtonProps) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
