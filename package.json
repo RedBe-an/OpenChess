@@ -5,12 +5,14 @@
   "scripts": {
     "dev": "next dev --turbopack & bun run dev:rust",
     "dev:rust": "vercel dev --listen 3001",
-    "build": "prisma generate && bun db:migrate && bun db:sync && next build",
+    "build": "bun db:setup && next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "bun prettier . --write ",
+    "db:generate": "prisma generate",
     "db:migrate": "bunx prisma migrate dev",
     "db:sync": "bun run bin/sync-openings.ts",
-    "db:make": "bun run bin/namu-it.ts"
+    "db:make": "bun run bin/namu-it.ts",
+    "db:setup": "bun db:generate && bun db:migrate && bun db:sync"
   },
   "bin": {
     "sync-openings": "./bin/sync-openings.ts",
