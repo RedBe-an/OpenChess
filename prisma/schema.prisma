@@ -10,12 +10,12 @@ datasource db {
   
 }
 
-model Openings {
-  id               Int      @id @default(autoincrement())
-  opening_name     String   @unique
-  description_file String   @unique
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+model opening {
+  eco      String 
+  name     String
+  urlName  String 
+  pgn      String @unique
+  mdx      String? // Optional field, as most values are null
 
-  @@map("openings")
+  @@map("opening") // Mapping table name to "opening"
 }

@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Noto_Sans_KR, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -36,8 +35,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-            {children}
-            <Footer />
+          {children}
+          <Footer />
         </ThemeProvider>
         <Toaster />
       </body>

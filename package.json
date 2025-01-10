@@ -3,16 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack & bun run dev:rust",
+    "dev": "next dev & bun run dev:rust",
     "dev:rust": "vercel dev --listen 3001",
-    "build": "prisma generate && bun db:migrate && bun db:sync && next build",
+    "build": "bun db:setup && next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "bun prettier . --write ",
+    "db:generate": "prisma generate",
     "db:migrate": "bunx prisma migrate dev",
-    "db:sync": "bun run bin/sync-openings.ts"
+    "db:sync": "bun run bin/sync-openings.ts",
+    "db:make": "bun run bin/namu-it.ts",
+    "db:setup": "bun db:generate && bun db:migrate && bun db:sync"
   },
   "bin": {
-    "sync-openings": "./bin/sync-openings.ts"
+    "sync-openings": "./bin/sync-openings.ts",
+    "namu-it": "./bin/namu-it.ts"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.0",
@@ -42,6 +46,7 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.0.0",
+    "remark-toc": "^9.0.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7"
   },
@@ -54,7 +59,12 @@
     "eslint": "^9",
     "eslint-config-next": "15.1.3",
     "postcss": "^8",
+    "prettier": "3.4.2",
     "prisma": "^6.1.0",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-slug": "^6.0.0",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
     "vercel": "^39.2.2"
