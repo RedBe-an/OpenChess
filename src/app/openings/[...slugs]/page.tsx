@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getMdxContent } from "@/lib/mdx";
 import prisma from "@/lib/prisma";
+import { getMdxContent } from "@/lib/mdx";
 
 type OpeningPageProps = {
   params: Promise<{
@@ -23,39 +23,40 @@ export default async function OpeningPage({ params }: OpeningPageProps) {
     // 디버깅을 위한 로그 추가
     console.log("Attempting to find opening with path:", openingPath);
 
-    // DB에서 오프닝 정보 조회
-    const opening = await prisma.openings
-      .findUnique({
-        where: {
-          opening_name: openingPath,
-        },
-      })
-      .catch((error) => {
-        console.error("Database query error:", error);
-        return null;
-      });
+    // Check if Prisma is initialized
+    if (!prisma || !prisma.opening) {
+      console.error("Prisma or Opening model is not initialized.");
+      return notFound();
+    }
 
-    // 결과 로깅
+    // DB에서 오프닝 정보 조회
+    const opening = await prisma.opening.findFirst({
+      where: {
+        urlName: openingPath,
+      },
+    }).catch((error) => {
+      console.error("Database query error:", error);
+      return null;
+    });
+
     console.log("DB query result:", opening);
 
     if (!opening) {
-      console.error(`Opening not found in database: ${openingPath}`); // 여기에 걸리고 있음
+      console.error(`Opening not found in database: ${openingPath}`);
       return notFound();
     }
 
-    // MDX 파일 존재 여부 확인
-    if (!opening.description_file) {
-      console.error(`Description file missing for opening: ${openingPath}`);
-      return notFound();
-    }
-
-    // MDX 컨텐츠 로드
-    const content = await getMdxContent(opening.description_file).catch(
-      (error) => {
+    // MDX 컨텐츠 로드 (mdx 필드가 없을 경우 대체 로직 추가)
+    let content = null;
+    if (opening.mdx) {
+      content = await getMdxContent(opening.mdx).catch((error) => {
         console.error("MDX content loading error:", error);
-        throw error;
-      },
-    );
+        return null;
+      });
+    } else {
+      // mdx 필드가 없을 경우 기본 설명 표시
+      content = <p>No description available for this opening.</p>;
+    }
 
     return (
       <article className="max-w-3xl mx-auto py-8 px-4">

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack & bun run dev:rust",
+    "dev": "next dev & bun run dev:rust",
     "dev:rust": "vercel dev --listen 3001",
     "build": "bun db:setup && next build",
     "start": "next start",

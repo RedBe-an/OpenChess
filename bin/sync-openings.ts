@@ -38,18 +38,26 @@ async function syncOpenings() {
       // 파일의 공개 URL 가져오기
       const publicUrl = `mdx/${normalizedFileName}.mdx`;
 
-      // Database에 정보 저장
-      await prisma.openings.upsert({
-        where: { opening_name: normalizedFileName },
-        update: {
-          description_file: publicUrl,
-          updated_at: new Date(),
-        },
-        create: {
-          opening_name: normalizedFileName,
-          description_file: publicUrl,
-        },
+      // Database에서 urlName이 일치하는 모든 항목 찾기
+      const matchingEntries = await prisma.opening.findMany({
+        where: { urlName: normalizedFileName },
       });
+
+      // 일치하는 항목이 있으면 mdx 필드만 업데이트
+      if (matchingEntries.length > 0) {
+        for (const entry of matchingEntries) {
+          await prisma.opening.update({
+            where: {
+              
+                urlName: entry.urlName,
+                pgn: entry.pgn,
+            },
+            data: {
+              mdx: publicUrl,
+            },
+          });
+        }
+      }
 
       console.log(`Successfully synced ${fileName}`);
     }
