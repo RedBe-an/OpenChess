@@ -5,13 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const normalizeFileName = (name: string): string => {
-  return (
-    name
+export function normalizeFileName(name: string): string {
+  // Normalize the text to decompose special characters into base characters
+  const normalized = name.normalize('NFD');
+  // Filter out combining marks (e.g., accents)
+  const asciiText = Array.from(normalized)
+      .filter(char => !char.match(/[\u0300-\u036f]/))
+      .join('');
+  // Remove unwanted characters except hyphens
+  const cleanedText = asciiText.replace(/[^\uAC00-\uD7A3a-zA-Z0-9\s-]/g, '');
+  // Convert to lowercase and replace spaces/tabs/newlines with hyphens
+  return cleanedText
       .toLowerCase()
-      // 공백을 하이픈으로 변환
-      .replace(/\s+/g, "-")
-      // 알파벳, 숫자, 하이픈을 제외한 모든 문자 제거
-      .replace(/[^a-z0-9-]/g, "")
-  );
-};
+      .replace(/\s+/g, '-')
+      .replace(/\t+/g, '-')
+      .replace(/\n+/g, '-');
+}

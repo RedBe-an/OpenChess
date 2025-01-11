@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import { Copy, Share } from "lucide-react";
+import { Copy, ExternalLink, Share } from "lucide-react";
 import { useCallback } from "react";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -45,8 +45,7 @@ export function ShareButton({ fen, pgn }: ShareButtonProps) {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline">
-          <Share />
-          공유
+         <ExternalLink />
         </Button>
       </DialogTrigger>
       <DialogContent>

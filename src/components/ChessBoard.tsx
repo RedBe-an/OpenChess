@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import ChessPiece from "@/components/ChessPiece";
 import GameInfo from "@/components/GameInfo";
 import { useChessGame } from "@/hooks/useChessGame";
@@ -147,6 +147,12 @@ const Chessboard: React.FC = () => {
     setSelectedSquare(null);
     setLastMove(null);
     setPossibleMoves([]);
+
+    // 만약 체스 판이 시작 상태라면 오프닝 정보를 리셋함.
+    if (newGame.fen() === 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
+      setOpeningInfo(null);
+      return;
+    }
 
     const info = await fetchOpeningInfo(newGame.fen());
     if (info !== undefined && info !== null) {

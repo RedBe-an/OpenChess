@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 import { CircleHelp, RotateCcw } from "lucide-react";
 import { ShareButton } from "./ShareButton";
 import { normalizeFileName } from "@/lib/utils";
+import { ImportPGN } from "./ImportPGN";
 
 interface GameInfoProps {
   fen: string;
@@ -61,6 +62,14 @@ const GameInfo = ({
               </p>
             </div>
           )}
+          <div className="relative">
+            <div className="apsolute inset-y-0 right-0" >
+              <ShareButton fen={fen} pgn={pgn} />
+              <ImportPGN />
+            </div>
+          </div>
+
+          
         </CardTitle>
       </CardHeader>
       <CardContent></CardContent>
@@ -72,7 +81,6 @@ const GameInfo = ({
         <Button onClick={onUndo}>
           <RotateCcw />한 수 이전으로
         </Button>
-        <ShareButton fen={fen} pgn={pgn} />
       </CardFooter>
     </Card>
   );
