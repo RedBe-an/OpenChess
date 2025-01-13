@@ -10,13 +10,17 @@ export type Board = (Piece | null)[][];
 export interface OpeningInfo {
   eco?: string;
   name?: string;
-  moves?: number;
+  urlName?: string;
+  pgn?: string;
+  mdx?: string;
 }
 
 export interface topGames {
+  uci: string;
   id: string;
   white: { name: string; rating: number };
   black: { name: string; rating: number };
   winner?: "white" | "black" | "draw";
   year: number;
+  month: string;
 }

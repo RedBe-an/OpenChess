@@ -44,8 +44,8 @@ export function ShareButton({ fen, pgn }: ShareButtonProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">
-         <ExternalLink />
+        <Button variant="outline" size="icon" className="">
+          <ExternalLink />
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -94,7 +94,7 @@ export function ShareButton({ fen, pgn }: ShareButtonProps) {
 
         <DialogFooter className="sm:justify-start">
           <DialogClose asChild>
-            <Button type="button" variant="secondary">
+            <Button type="button" variant="outline">
               Close
             </Button>
           </DialogClose>

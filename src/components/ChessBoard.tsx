@@ -149,7 +149,10 @@ const Chessboard: React.FC = () => {
     setPossibleMoves([]);
 
     // 만약 체스 판이 시작 상태라면 오프닝 정보를 리셋함.
-    if (newGame.fen() === 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
+    if (
+      newGame.fen() ===
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    ) {
       setOpeningInfo(null);
       return;
     }

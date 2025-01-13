@@ -11,16 +11,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Import } from "lucide-react";
 import { useState } from "react";
-import { useChessGame } from "@/hooks/useChessGame";
 
 export function ImportPGN() {
   const [pgn, setPgn] = useState("");
 
-
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline"><Import /></Button>
+        <Button variant="outline" size="icon">
+          <Import />
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
