@@ -1,12 +1,28 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import ChessPiece from "@/components/ChessPiece";
 import GameInfo from "@/components/GameInfo";
 import { useChessGame } from "@/hooks/useChessGame";
 import { BOARD_SIZE, fenToBoard } from "@/lib/chess";
 import { Chess, Square } from "chess.js";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Import } from "lucide-react";
+import { Input } from "./ui/input";
+import { Board } from "@/types/chess";
 
+/**
+ * The Chessboard component renders a chess board and handles user input.
+ */
 const Chessboard: React.FC = () => {
   const {
     game,
@@ -29,6 +45,12 @@ const Chessboard: React.FC = () => {
     fetchOpeningInfo,
   } = useChessGame();
 
+  /**
+   * Handle a square being clicked.
+   *
+   * @param row The row of the square.
+   * @param col The column of the square.
+   */
   const handleSquareClick = (row: number, col: number) => {
     if (
       selectedSquare &&
@@ -77,6 +99,12 @@ const Chessboard: React.FC = () => {
     }
   };
 
+  /**
+   * Render a single square on the board.
+   *
+   * @param row The row of the square.
+   * @param col The column of the square.
+   */
   const renderSquare = (row: number, col: number) => {
     const isLight = (row + col) % 2 === 0;
     const isSelected =
@@ -114,12 +142,20 @@ const Chessboard: React.FC = () => {
     );
   };
 
+  /**
+   * Render a row of squares on the board.
+   *
+   * @param row The row to render.
+   */
   const renderRow = (row: number) => (
     <div key={row} className="flex w-full flex-1">
       {Array.from({ length: BOARD_SIZE }, (_, col) => renderSquare(row, col))}
     </div>
   );
 
+  /**
+   * Reset the game to the starting position.
+   */
   const resetGame = () => {
     const newGame = new Chess();
     setGame(newGame);
@@ -132,6 +168,9 @@ const Chessboard: React.FC = () => {
     setOpeningInfo(null);
   };
 
+  /**
+   * Undo the last move.
+   */
   const undoMove = async () => {
     const moves = game.history();
     const newGame = new Chess();
@@ -163,6 +202,56 @@ const Chessboard: React.FC = () => {
     }
   };
 
+  const ImportPGN = () => {
+    const [importedPgn, setImportedPgn] = useState("");
+    const handleImport = () => {
+      const newGame = new Chess();
+      const moves = importedPgn.split(/\n\d+\./).slice(1);
+
+      moves.forEach((move) => {
+        newGame.move(move.trim());
+      });
+
+      setGame(newGame);
+      setBoard(fenToBoard(newGame.fen()));
+      setFen(newGame.fen());
+      setPgn(newGame.pgn());
+    };
+
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="icon">
+            <Import />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>PGN 불러오기</DialogTitle>
+            <DialogDescription>
+              아래의 입력창에 PGN을 붙여넣어주세요.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <div className="grid flex-1 gap-2">
+                <Input
+                  id="pgn"
+                  className="w-full rounded-md border px-3 py-2 text-sm"
+                  value={importedPgn}
+                  onChange={(e) => setImportedPgn(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleImport}>불러오기</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
   return (
     <div className="flex flex-row gap-4 w-full h-full max-w-[90vmin] max-h-[90vmin] rounded-lg justify-center">
       <div className="flex-1 aspect-square flex flex-col">
@@ -176,6 +265,7 @@ const Chessboard: React.FC = () => {
         onReset={resetGame}
         onUndo={undoMove}
         isWhiteTurn={game.turn() === "w"}
+        ImportPGN={ImportPGN}
       />
     </div>
   );

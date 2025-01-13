@@ -9,12 +9,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { OpeningInfo, topGames } from "@/types/chess";
-import React, { useEffect, useState } from "react";
+import React, { JSX, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { CircleHelp, RotateCcw } from "lucide-react";
 import { ShareButton } from "./ShareButton";
 import { normalizeFileName } from "@/lib/utils";
-import { ImportPGN } from "./ImportPGN";
 import { fetchOpening } from "@/hooks/fetchOpening";
 
 interface GameInfoProps {
@@ -24,6 +23,7 @@ interface GameInfoProps {
   topGames: topGames[];
   onReset: () => void;
   onUndo: () => void;
+  ImportPGN: () => JSX.Element;
   isWhiteTurn: boolean;
   capturedPieces?: {
     white: string[];
@@ -41,6 +41,7 @@ const GameInfo = ({
   openingInfo,
   onReset,
   onUndo,
+  ImportPGN,
 }: GameInfoProps) => {
   const [openingData, setOpeningData] = useState<{
     pgn: string;
