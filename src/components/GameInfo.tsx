@@ -1,4 +1,4 @@
-'use client'; 
+"use client";
 
 import {
   Card,
@@ -9,14 +9,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { OpeningInfo, topGames } from "@/types/chess";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { CircleHelp, RotateCcw } from "lucide-react";
 import { ShareButton } from "./ShareButton";
 import { normalizeFileName } from "@/lib/utils";
 import { ImportPGN } from "./ImportPGN";
-import { notFound } from "next/navigation";
-import prisma from "@/lib/prisma";
+import { fetchOpening } from "@/hooks/fetchOpening";
 
 interface GameInfoProps {
   fen: string;
@@ -43,6 +42,24 @@ const GameInfo = ({
   onReset,
   onUndo,
 }: GameInfoProps) => {
+  const [openingData, setOpeningData] = useState<{
+    pgn: string;
+    eco: string;
+    name: string;
+    urlName: string;
+    mdx: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    if (openingInfo) {
+      fetchOpening(openingInfo).then((opening) =>
+        setOpeningData(opening as typeof openingData)
+      );
+    } else {
+      setOpeningData(null);
+    }
+  }, [openingInfo]);
+
   return (
     <Card className="flex-none min-w-[400px] max-w-[400px]">
       <CardHeader>
@@ -50,7 +67,7 @@ const GameInfo = ({
           <div className="relative">
             <CircleHelp className="mb-4" />
             <div className="absolute inset-y-0 right-0 flex space-x-2">
-              <ShareButton fen={fen} pgn={pgn}/>
+              <ShareButton fen={fen} pgn={pgn} />
               <ImportPGN />
             </div>
           </div>
@@ -87,45 +104,16 @@ const GameInfo = ({
       <CardContent>
         {openingInfo && (
           <div>
-            {(() => {
-              // Execute the script logic
-              const fetchOpening = async () => {
-                try {
-                  const opening = await prisma.opening.findFirst({
-                    where: {
-                      name: openingInfo.name,
-                    },
-                  });
-                
-                  console.log("DB query result:", opening);
-                
-                  if (!opening) {
-                    console.error(`Opening not found in database: ${openingInfo.name}`);
-                    return notFound(); // Ensure `notFound()` is defined or replace it with appropriate logic
-                  }
-                
-                  // You can now use the `opening` data as needed
-                  return opening;
-                } catch (error) {
-                  console.error("Database query error:", error);
-                  return null;
-                }
-              };
-            
-              // Call the function and handle the result
-              fetchOpening().then((opening) => {
-                if (opening) {
-                  // Do something with the opening data
-                  console.log("Opening data:", opening);
-                } else {
-                  // Handle the case where the opening is not found or an error occurs
-                  console.error("Failed to fetch opening data.");
-                }
-              });
-            
-              // Render a placeholder or loading state
-              return <p>Loading opening data...</p>;
-            })()}
+            <hr />
+            <div className="leading-7 [&:not(:first-child)]:mt-2 flex flex-row space-x-2">
+              {openingData && (
+                <div className="text-gray-400 flex flex-row space-x-2 pr-2">
+                  {openingData.eco}
+                </div>
+              )}
+              {pgn}
+            </div>
+            <hr className="mt-2" />
           </div>
         )}
       </CardContent>
