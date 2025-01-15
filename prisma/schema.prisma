@@ -1,0 +1,21 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  
+}
+
+model opening {
+  eco      String 
+  name     String
+  urlName  String 
+  pgn      String @unique
+  mdx      String? // Optional field, as most values are null
+
+  @@map("opening") // Mapping table name to "opening"
+}
