@@ -54,7 +54,7 @@ const GameInfo = ({
   useEffect(() => {
     if (openingInfo) {
       fetchOpening(openingInfo).then((opening) =>
-        setOpeningData(opening as typeof openingData)
+        setOpeningData(opening as typeof openingData),
       );
     } else {
       setOpeningData(null);

@@ -10,7 +10,7 @@ import { OpeningInfo } from "@/types/chess";
  * @returns the opening or { notFound: true } if not found
  */
 export const fetchOpening = async (
-  openingInfo: OpeningInfo
+  openingInfo: OpeningInfo,
 ): Promise<OpeningInfo & { notFound?: boolean }> => {
   try {
     /**

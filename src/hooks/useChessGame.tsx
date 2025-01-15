@@ -9,7 +9,7 @@ export const useChessGame = () => {
   const [game, setGame] = useState(new Chess());
   const [board, setBoard] = useState<Board>(fenToBoard(game.fen()));
   const [selectedSquare, setSelectedSquare] = useState<[number, number] | null>(
-    null
+    null,
   );
   const [lastMove, setLastMove] = useState<{
     from: [number, number];
@@ -24,7 +24,7 @@ export const useChessGame = () => {
   const fetchOpeningInfo = async (fen: string) => {
     try {
       const response = await fetch(
-        `https://explorer.lichess.ovh/masters?fen=${encodeURIComponent(fen)}`
+        `https://explorer.lichess.ovh/masters?fen=${encodeURIComponent(fen)}`,
       );
       const data = await response.json();
 
