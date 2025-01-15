@@ -2,7 +2,8 @@
   <img style="height:150px;" src=".github/OpenChess.png">
 </p>
 
-# ♞ OpenChess
+<h1 align="center">OpenChess</h1>
+
 ## 🚀 소개
 
 체스 오프닝을 찾아볼 수 있는 사이트입니다. 스스로 수를 둬서 찾을 수도 있고, `PGN`, `FEN`을 사용해서 찾아볼 수도, 게임 링크로 찾아볼 수도 있습니다. 
