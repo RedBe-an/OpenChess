@@ -32,7 +32,6 @@ export const useChessGame = () => {
         setOpeningInfo({
           eco: data.opening.eco,
           name: data.opening.name,
-          moves: data.moves?.length,
         });
       }
 

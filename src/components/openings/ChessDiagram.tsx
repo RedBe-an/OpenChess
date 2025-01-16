@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 interface PieceProps {
   piece: {
     type: "p" | "n" | "b" | "r" | "q" | "k";

@@ -1,16 +1,20 @@
+"use client";
+
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { OpeningInfo, topGames } from "@/types/chess";
-import React from "react";
+import React, { JSX, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { CircleHelp, RotateCcw } from "lucide-react";
 import { ShareButton } from "./ShareButton";
 import { normalizeFileName } from "@/lib/utils";
+import { fetchOpening } from "@/hooks/fetchOpening";
 
 interface GameInfoProps {
   fen: string;
@@ -19,6 +23,7 @@ interface GameInfoProps {
   topGames: topGames[];
   onReset: () => void;
   onUndo: () => void;
+  ImportPGN: () => JSX.Element;
   isWhiteTurn: boolean;
   capturedPieces?: {
     white: string[];
@@ -26,20 +31,55 @@ interface GameInfoProps {
   };
 }
 
+/**
+ * GameInfo component displays the current game information, including
+ * the opening details and buttons for resetting and undoing moves.
+ */
 const GameInfo = ({
   fen,
   pgn,
   openingInfo,
   onReset,
   onUndo,
+  ImportPGN,
 }: GameInfoProps) => {
+  const [openingData, setOpeningData] = useState<{
+    pgn: string;
+    eco: string;
+    name: string;
+    urlName: string;
+    mdx: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    if (openingInfo) {
+      fetchOpening(openingInfo).then((opening) =>
+        setOpeningData(opening as typeof openingData),
+      );
+    } else {
+      setOpeningData(null);
+    }
+  }, [openingInfo]);
+
   return (
     <Card className="flex-none min-w-[400px] max-w-[400px]">
       <CardHeader>
         <CardTitle>
+          <div className="relative">
+            <CircleHelp className="mb-4" />
+            <div className="absolute inset-y-0 right-0 flex space-x-2">
+              <ShareButton fen={fen} pgn={pgn} />
+              <ImportPGN />
+            </div>
+          </div>
+        </CardTitle>
+        <CardDescription>
           {openingInfo ? (
-            <div key="opening-info">
-              <CircleHelp className="mb-4" />이 오프닝은{" "}
+            <div
+              key="opening-info"
+              className="text-base font-semibold text-foreground"
+            >
+              이 오프닝은{" "}
               <a
                 href={`/openings/${normalizeFileName(openingInfo?.name ?? "")}`}
                 className="hover:underline"
@@ -52,7 +92,6 @@ const GameInfo = ({
             </div>
           ) : (
             <div>
-              <CircleHelp className="mb-4" />
               <p
                 key="no-opening"
                 className="text-base font-semibold text-muted-foreground"
@@ -61,18 +100,32 @@ const GameInfo = ({
               </p>
             </div>
           )}
-        </CardTitle>
+        </CardDescription>
       </CardHeader>
-      <CardContent></CardContent>
+      <CardContent>
+        {openingInfo && (
+          <div>
+            <hr />
+            <div className="leading-7 [&:not(:first-child)]:mt-2 flex flex-row space-x-2">
+              {openingData && (
+                <div className="text-gray-400 flex flex-row space-x-2 pr-2">
+                  {openingData.eco}
+                </div>
+              )}
+              {pgn}
+            </div>
+            <hr className="mt-2" />
+          </div>
+        )}
+      </CardContent>
       <CardFooter className="flex justify-between">
-        <Button variant="secondary" onClick={onReset}>
+        <Button variant="outline" onClick={onReset}>
           <RotateCcw />
           리셋
         </Button>
         <Button onClick={onUndo}>
           <RotateCcw />한 수 이전으로
         </Button>
-        <ShareButton fen={fen} pgn={pgn} />
       </CardFooter>
     </Card>
   );
