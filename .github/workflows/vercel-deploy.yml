@@ -20,7 +20,7 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.GIT_SECRET }}
         with:
-          source-directory: 'output'
+          source-directory: "output"
           destination-github-username: RedBe-an
           destination-repository-name: OpenChess
           user-email: redbean.of@gmail.com

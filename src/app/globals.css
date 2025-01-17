@@ -75,3 +75,26 @@ body {
 ::-webkit-scrollbar {
   display: none;
 }
+
+.anchor-icon {
+  visibility: hidden;
+  margin-left: 0.5rem;
+  color: var(--muted-foreground);
+}
+
+h1:hover .anchor-icon,
+h2:hover .anchor-icon,
+h3:hover .anchor-icon,
+h4:hover .anchor-icon,
+h5:hover .anchor-icon,
+h6:hover .anchor-icon {
+  visibility: visible;
+}
+
+.anchor {
+  text-decoration: none;
+}
+
+.anchor:hover {
+  text-decoration: underline;
+}

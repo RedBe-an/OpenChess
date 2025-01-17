@@ -35,100 +35,120 @@ interface GameInfoProps {
  * GameInfo component displays the current game information, including
  * the opening details and buttons for resetting and undoing moves.
  */
-const GameInfo = ({
-  fen,
-  pgn,
-  openingInfo,
-  onReset,
-  onUndo,
-  ImportPGN,
-}: GameInfoProps) => {
-  const [openingData, setOpeningData] = useState<{
-    pgn: string;
-    eco: string;
-    name: string;
-    urlName: string;
-    mdx: string | null;
-  } | null>(null);
+const GameInfo = React.memo(
+  ({ fen, pgn, openingInfo, onReset, onUndo, ImportPGN }: GameInfoProps) => {
+    const [openingData, setOpeningData] = useState<{
+      pgn: string;
+      eco: string;
+      name: string;
+      urlName: string;
+      mdx: string | null;
+    } | null>(null);
 
-  useEffect(() => {
-    if (openingInfo) {
-      fetchOpening(openingInfo).then((opening) =>
-        setOpeningData(opening as typeof openingData),
-      );
-    } else {
-      setOpeningData(null);
-    }
-  }, [openingInfo]);
+    useEffect(() => {
+      let isMounted = true;
 
-  return (
-    <Card className="flex-none min-w-[400px] max-w-[400px]">
-      <CardHeader>
-        <CardTitle>
-          <div className="relative">
-            <CircleHelp className="mb-4" />
-            <div className="absolute inset-y-0 right-0 flex space-x-2">
-              <ShareButton fen={fen} pgn={pgn} />
-              <ImportPGN />
+      const loadOpening = async () => {
+        if (!openingInfo) {
+          setOpeningData(null);
+          return;
+        }
+
+        try {
+          const opening = await fetchOpening(openingInfo);
+          if (isMounted) {
+            setOpeningData(opening as typeof openingData);
+          }
+        } catch (error) {
+          console.error("오프닝 정보를 불러오는데 실패했습니다:", error);
+        }
+      };
+
+      loadOpening();
+      return () => {
+        isMounted = false;
+      };
+    }, [openingInfo]);
+
+    const handleReset = React.useCallback(() => {
+      onReset();
+    }, [onReset]);
+
+    const handleUndo = React.useCallback(() => {
+      onUndo();
+    }, [onUndo]);
+
+    return (
+      <Card className="flex-none min-w-[400px] max-w-[400px]">
+        <CardHeader>
+          <CardTitle>
+            <div className="relative">
+              <CircleHelp className="mb-4" />
+              <div className="absolute inset-y-0 right-0 flex space-x-2">
+                <ShareButton fen={fen} pgn={pgn} />
+                <ImportPGN />
+              </div>
             </div>
-          </div>
-        </CardTitle>
-        <CardDescription>
-          {openingInfo ? (
-            <div
-              key="opening-info"
-              className="text-base font-semibold text-foreground"
-            >
-              이 오프닝은{" "}
-              <a
-                href={`/openings/${normalizeFileName(openingInfo?.name ?? "")}`}
-                className="hover:underline"
+          </CardTitle>
+          <CardDescription>
+            {openingInfo ? (
+              <div
+                key="opening-info"
+                className="text-base font-semibold text-foreground"
               >
-                <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
-                  {openingInfo.name}
-                </code>
-              </a>{" "}
-              입니다.
-            </div>
-          ) : (
+                이 오프닝은{" "}
+                <a
+                  href={`/openings/${normalizeFileName(openingInfo?.name ?? "")}`}
+                  className="hover:underline"
+                >
+                  <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+                    {openingInfo.name}
+                  </code>
+                </a>{" "}
+                입니다.
+              </div>
+            ) : (
+              <div>
+                <p
+                  key="no-opening"
+                  className="text-base font-semibold text-muted-foreground"
+                >
+                  오프닝을 찾아보세요!
+                </p>
+              </div>
+            )}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {openingInfo && (
             <div>
-              <p
-                key="no-opening"
-                className="text-base font-semibold text-muted-foreground"
-              >
-                오프닝을 찾아보세요!
-              </p>
+              <hr />
+              <div className="leading-7 [&:not(:first-child)]:mt-2 flex flex-row space-x-2">
+                {openingData && (
+                  <div className="text-gray-400 flex flex-row space-x-2 pr-2">
+                    {openingData.eco}
+                  </div>
+                )}
+                {pgn}
+              </div>
+              <hr className="mt-2" />
             </div>
           )}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {openingInfo && (
-          <div>
-            <hr />
-            <div className="leading-7 [&:not(:first-child)]:mt-2 flex flex-row space-x-2">
-              {openingData && (
-                <div className="text-gray-400 flex flex-row space-x-2 pr-2">
-                  {openingData.eco}
-                </div>
-              )}
-              {pgn}
-            </div>
-            <hr className="mt-2" />
-          </div>
-        )}
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="outline" onClick={onReset}>
-          <RotateCcw />
-          리셋
-        </Button>
-        <Button onClick={onUndo}>
-          <RotateCcw />한 수 이전으로
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-};
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button variant="outline" onClick={handleReset}>
+            <RotateCcw />
+            리셋
+          </Button>
+          <Button onClick={handleUndo}>
+            <RotateCcw />한 수 이전으로
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  },
+);
+
+GameInfo.displayName = "GameInfo";
 
 export default GameInfo;

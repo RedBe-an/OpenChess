@@ -5,9 +5,11 @@ import remarkToc from "remark-toc";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 
-const nextConfig: import("next").NextConfig = {
+const nextConfig = {
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
-  
+  experimental: {
+    mdxRs: true,
+  },
 };
 
 const withMDX = createMDX({
@@ -25,8 +27,8 @@ const withMDX = createMDX({
         },
       ],
     ],
+    providerImportSource: "@mdx-js/react",
   },
 });
 
-// Merge MDX config with Next.js config
 export default withMDX(nextConfig);

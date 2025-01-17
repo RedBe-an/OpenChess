@@ -1,6 +1,13 @@
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
-import { getMdxContent } from "@/lib/mdx";
+import { compileMDX } from "next-mdx-remote/rsc";
+import { supabase } from "@/lib/client";
+import ChessDiagram from "@/components/openings/ChessDiagram";
+import remarkToc from "remark-toc";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
+import rehypeSlug from "rehype-slug";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
 
 type OpeningPageProps = {
   params: Promise<{
@@ -8,65 +15,95 @@ type OpeningPageProps = {
   }>;
 };
 
+async function getOpeningFromPath(openingPath: string) {
+  if (!prisma?.opening) {
+    console.error("Prisma or Opening model is not initialized.");
+    return null;
+  }
+
+  try {
+    const opening = await prisma.opening.findFirst({
+      where: { urlName: openingPath },
+    });
+
+    console.log("DB query result:", opening);
+    return opening;
+  } catch (error) {
+    console.error("Database query error:", error);
+    return null;
+  }
+}
+
+async function getOpeningContent(mdxPath: string | null) {
+  if (!mdxPath) {
+    return <p>이 오프닝에 대한 설명이 없습니다.</p>;
+  }
+
+  try {
+    const { data, error } = await supabase.storage
+      .from("openings")
+      .download(mdxPath);
+
+    if (error) {
+      console.error("MDX 파일을 가져오는데 실패했습니다:", error);
+      return <p>오프닝 내용을 불러오는데 실패했습니다.</p>;
+    }
+
+    const content = await data.text();
+    const { content: mdxContent } = await compileMDX({
+      source: content,
+      components: {
+        ChessDiagram,
+      },
+      options: {
+        mdxOptions: {
+          remarkPlugins: [remarkToc, remarkGfm, remarkBreaks],
+          rehypePlugins: [
+            rehypeSlug,
+            [
+              rehypeAutolinkHeadings,
+              {
+                properties: {
+                  className: ["anchor"],
+                },
+              },
+            ],
+          ],
+        },
+      },
+    });
+
+    return mdxContent;
+  } catch (error) {
+    console.error("MDX 컨텐츠 로딩 에러:", error);
+    return <p>오프닝 내용을 불러오는데 실패했습니다.</p>;
+  }
+}
+
 export default async function OpeningPage({ params }: OpeningPageProps) {
   const resolvedParams = await params;
 
-  // 슬러그가 없으면 404
   if (!resolvedParams.slugs?.length) {
-    console.log("No slugs found in params:", resolvedParams);
+    console.log("슬러그를 찾을 수 없습니다:", resolvedParams);
     return notFound();
   }
 
   const openingPath = resolvedParams.slugs.join("/").toLowerCase();
+  console.log("오프닝 경로 검색 중:", openingPath);
 
-  try {
-    // 디버깅을 위한 로그 추가
-    console.log("Attempting to find opening with path:", openingPath);
-
-    // Check if Prisma is initialized
-    if (!prisma || !prisma.opening) {
-      console.error("Prisma or Opening model is not initialized.");
-      return notFound();
-    }
-
-    // DB에서 오프닝 정보 조회
-    const opening = await prisma.opening.findFirst({
-      where: {
-        urlName: openingPath,
-      },
-    }).catch((error) => {
-      console.error("Database query error:", error);
-      return null;
-    });
-
-    console.log("DB query result:", opening);
-
-    if (!opening) {
-      console.error(`Opening not found in database: ${openingPath}`);
-      return notFound();
-    }
-
-    // MDX 컨텐츠 로드 (mdx 필드가 없을 경우 대체 로직 추가)
-    let content = null;
-    if (opening.mdx) {
-      content = await getMdxContent(opening.mdx).catch((error) => {
-        console.error("MDX content loading error:", error);
-        return null;
-      });
-    } else {
-      // mdx 필드가 없을 경우 기본 설명 표시
-      content = <p>No description available for this opening.</p>;
-    }
-
-    return (
-      <article className="max-w-3xl mx-auto py-8 px-4">
-        <div className="prose prose-slate dark:prose-invert max-w-none">
-          {content}
-        </div>
-      </article>
-    );
-  } catch (error) {
-    console.error("Error fetching opening:", error);
+  const opening = await getOpeningFromPath(openingPath);
+  if (!opening) {
+    console.error(`데이터베이스에서 오프닝을 찾을 수 없습니다: ${openingPath}`);
     return notFound();
   }
+
+  const content = await getOpeningContent(opening.mdx);
+
+  return (
+    <article className="max-w-3xl mx-auto py-8 px-4">
+      <div className="prose prose-slate dark:prose-invert max-w-none">
+        {content}
+      </div>
+    </article>
+  );
 }
