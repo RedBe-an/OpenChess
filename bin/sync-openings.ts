@@ -48,9 +48,8 @@ async function syncOpenings() {
         for (const entry of matchingEntries) {
           await prisma.opening.update({
             where: {
-              
-                urlName: entry.urlName,
-                pgn: entry.pgn,
+              urlName: entry.urlName,
+              pgn: entry.pgn,
             },
             data: {
               mdx: publicUrl,
