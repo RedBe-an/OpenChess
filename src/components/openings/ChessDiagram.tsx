@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface PieceProps {
   piece: {
     type: "p" | "n" | "b" | "r" | "q" | "k";
@@ -20,10 +22,13 @@ const ChessPiece = ({ piece }: PieceProps) => {
 
   return (
     <div className="absolute flex items-center justify-center h-full w-full">
-      <img
+      <Image
         src={imagePath}
         alt={`${piece.color === "w" ? "White" : "Black"} ${piece.type.toUpperCase()}`}
         className="object-contain p-1"
+        fill
+        sizes="(max-width: 768px) 100vw, 33vw"
+        priority
       />
     </div>
   );
@@ -36,7 +41,7 @@ export default function ChessDiagram({ position }: { position: string }) {
     .map((row) => row.trim());
 
   const getPiece = (
-    char: string,
+    char: string
   ): { type: "p" | "n" | "b" | "r" | "q" | "k"; color: "w" | "b" } | null => {
     if (char === ".") return null;
     const lowerChar = char.toLowerCase() as "p" | "n" | "b" | "r" | "q" | "k";
@@ -69,7 +74,7 @@ export default function ChessDiagram({ position }: { position: string }) {
           >
             <ChessPiece piece={getPiece(char)} />
           </div>
-        )),
+        ))
       )}
     </div>
   );
