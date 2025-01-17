@@ -1,20 +1,97 @@
 import * as fs from "fs";
 import * as path from "path";
 
+interface ChessBoard {
+  position: string[][];
+  caption: string;
+}
+
+function parseChessPosition(inputText: string): string {
+  const lines: string[] = inputText.split("\n").map((line) => line.trim());
+  const board: string[][] = Array(8)
+    .fill(null)
+    .map(() => Array(8).fill("-"));
+
+  let caption: string = "";
+  lines.forEach((line) => {
+    if (line.includes("caption=")) {
+      caption = line.split("caption=")[1].replace(")]", "");
+    }
+  });
+
+  lines.forEach((line) => {
+    if (line.includes("=") && !line.includes("caption=")) {
+      const positions: string[] = line.trim().replace(/,$/, "").split(",");
+
+      positions.forEach((pos) => {
+        if (!pos.includes("=")) return;
+
+        const parts: string[] = pos.split("=");
+        if (parts.length !== 2) return;
+
+        const [square, piece] = parts.map((p) => p.trim());
+        if (!piece || square.length !== 2) return;
+
+        if (!/^[a-h][1-8]$/.test(square)) return;
+
+        const file: number = square.charCodeAt(0) - "a".charCodeAt(0);
+        const rank: number = 8 - parseInt(square[1]);
+
+        if (piece === "") return;
+
+        const pieceType: string = piece[0];
+        const color: string = piece[1];
+
+        let symbol: string = "";
+        switch (pieceType) {
+          case "R":
+            symbol = "r";
+            break;
+          case "N":
+            symbol = "n";
+            break;
+          case "B":
+            symbol = "b";
+            break;
+          case "Q":
+            symbol = "q";
+            break;
+          case "K":
+            symbol = "k";
+            break;
+          case "P":
+            symbol = "p";
+            break;
+          default:
+            return;
+        }
+
+        if (color === "w") {
+          symbol = symbol.toUpperCase();
+        }
+
+        board[rank][file] = symbol;
+      });
+    }
+  });
+
+  const position: string = board
+    .map((row) => row.join(""))
+    .join("\n           ");
+
+  return `<ChessDiagram\n  position="${position}"\n/>\n**${caption}**\n`;
+}
+
 function namuIt(input: string): string {
-  // 변환 규칙 정의
   const rules: {
     regex: RegExp;
     replacement: string | ((...args: any[]) => string);
   }[] = [
-    // 문단
     {
       regex: /^(=+)\s*(.+?)\s*\1$/gm,
       replacement: (_, level: string, title: string) =>
         "#".repeat(level.length) + " " + title.trim(),
     },
-
-    // 리스트
     {
       regex: /^\*\s+(.*)$/gm,
       replacement: (_, item: string) => "- " + item.trim(),
@@ -22,55 +99,46 @@ function namuIt(input: string): string {
     {
       regex: /^\s*\*\s+(.*)$/gm,
       replacement: (_, item: string) => "  - " + item.trim(),
-    }, // 하위 리스트
-
-    // 강조
+    },
     {
       regex: /'''(.*?)'''/g,
       replacement: (_, text: string) => "**" + text + "**",
-    }, // 굵게
-    { regex: /''(.*?)''/g, replacement: (_, text: string) => "*" + text + "*" }, // 기울임
+    },
+    { regex: /''(.*?)''/g, replacement: (_, text: string) => "*" + text + "*" },
     {
       regex: /__(.*?)__/g,
       replacement: (_, text: string) => "<u>" + text + "</u>",
-    }, // 밑줄
+    },
     {
       regex: /~~(.*?)~~/g,
       replacement: (_, text: string) => "~~" + text + "~~",
-    }, // 취소선
-
-    // 하이퍼링크
+    },
     {
       regex: /\[\[(.*?)\|?(.*?)\]\]/g,
       replacement: (_, link: string, text: string) =>
-        `[${text || link}](https://namu.wiki/w/${encodeURIComponent(link)})`,
+        `[${text || link}](https://namu.wiki/w/${encodeURIComponent(link || text)})`,
     },
-
-    // 외부 링크
     {
       regex: /\[\[(https?:\/\/[^\s]+)\|?(.*?)\]\]/g,
       replacement: (_, url: string, text: string) => `[${text || url}](${url})`,
     },
-
-    // 이미지
     {
       regex: /\[\[파일:(.*?)\]\]/g,
       replacement: (_, filename: string) =>
         `![${filename}](https://namu.wiki/w/파일:${encodeURIComponent(filename)})`,
     },
-
-    // 동영상
     {
       regex: /\[\[youtube\((.*?)\)\]\]/g,
       replacement: (_, id: string) => `https://www.youtube.com/watch?v=${id}`,
     },
-
-    // 표
-    { regex: /\|\|/g, replacement: "|" }, // 표의 셀 구분
-    { regex: /(\|.*?)(\n\|)/g, replacement: "$1$2\n" }, // 줄 바꿈 처리
+    { regex: /\|\|/g, replacement: "|" },
+    { regex: /(\|.*?)(\n\|)/g, replacement: "$1$2\n" },
+    {
+      regex: /\[include\(틀:체스게임[^)]+\)\]/gs,
+      replacement: (match) => parseChessPosition(match),
+    },
   ];
 
-  // 변환 적용
   let output = input;
   for (const rule of rules) {
     output = output.replace(rule.regex, (match, ...args) => {
@@ -84,9 +152,8 @@ function namuIt(input: string): string {
   return output;
 }
 
-// openings 폴더의 모든 .namu 파일을 읽어서 변환한 결과를 각각의 .mdx 파일에 쓰기
 const inputDir = "openings";
-const outputDir = "openings"; // 출력 디렉토리도 openings로 설정
+const outputDir = "openings";
 
 fs.readdir(inputDir, (err, files) => {
   if (err) {
@@ -99,7 +166,7 @@ fs.readdir(inputDir, (err, files) => {
       const inputFilePath = path.join(inputDir, file);
       const outputFilePath = path.join(
         outputDir,
-        file.replace(/\.namu$/, ".mdx"),
+        file.replace(/\.namu$/, ".mdx")
       );
 
       fs.readFile(inputFilePath, "utf8", (err, data) => {
