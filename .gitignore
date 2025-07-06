@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.next/
+openings/
+.env
+.env.local
+.env.development
+
