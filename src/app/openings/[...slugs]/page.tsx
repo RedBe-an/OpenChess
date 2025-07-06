@@ -15,26 +15,9 @@ type OpeningPageProps = {
   }>;
 };
 
-// 정적 경로 생성 함수 추가
-export async function generateStaticParams() {
-  try {
-    if (!prisma?.opening) {
-      console.log("Prisma not available during build, returning empty paths");
-      return [];
-    }
-
-    const openings = await prisma.opening.findMany({
-      select: { urlName: true },
-    });
-
-    return openings.map((opening: { urlName: string; }) => ({
-      slugs: opening.urlName.split('/'),
-    }));
-  } catch (error) {
-    console.log("Error generating static params:", error);
-    return []; // 빌드 실패를 방지하기 위해 빈 배열 반환
-  }
-}
+// 동적 라우팅을 위해 generateStaticParams 제거하고 대신 dynamicParams 설정
+export const dynamicParams = true; // 동적 파라미터 허용
+export const dynamic = 'force-dynamic'; // 모든 페이지를 동적으로 렌더링
 
 async function getOpeningFromPath(openingPath: string) {
   if (!prisma?.opening) {
