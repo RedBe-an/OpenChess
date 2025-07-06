@@ -13,7 +13,7 @@ const nextConfig: import('next').NextConfig = {
     cpus: 1,
   },
   // 빌드 시 외부 의존성 처리
-  serverComponentsExternalPackages: ['@prisma/client'],
+  transpilePackages: ['@prisma/client'],
   // 동적 라우팅 설정
   output: 'standalone' as const, // 서버사이드 렌더링을 위한 설정
 };

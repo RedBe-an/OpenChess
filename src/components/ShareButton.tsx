@@ -50,8 +50,8 @@ export function ShareButton({ fen, pgn }: ShareButtonProps) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>게임 공유</DialogTitle>
-          <DialogDescription>현재 게임 상태를 복사하세요.</DialogDescription>
+          <DialogTitle>PGN - FEN 공유</DialogTitle>
+          <DialogDescription>현재 보드의 상태를 복사하세요.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
