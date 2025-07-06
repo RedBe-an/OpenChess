@@ -5,11 +5,15 @@ import remarkToc from "remark-toc";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
   experimental: {
-    mdxRs: true,
+    // Jest worker 문제 해결을 위한 설정
+    workerThreads: false,
+    cpus: 1,
   },
+  // 빌드 시 외부 의존성 처리
+  serverComponentsExternalPackages: ['@prisma/client'],
 };
 
 const withMDX = createMDX({
@@ -31,4 +35,4 @@ const withMDX = createMDX({
   },
 });
 
-export default withMDX(nextConfig);
+module.exports = withMDX(nextConfig);

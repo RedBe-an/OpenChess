@@ -5,8 +5,8 @@ import { join } from "path";
 import { normalizeFileName } from "@/lib/utils";
 
 const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  process.env.OPENCHESS_SUPABASE_URL!,
+  process.env.OPENCHESS_SUPABASE_SERVICE_ROLE_KEY!,
 );
 
 const prisma = new PrismaClient();
