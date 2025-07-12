@@ -1,15 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
-import { PrismaClient } from "@prisma/client";
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
 import { normalizeFileName } from "@/lib/utils";
+import prisma from "../src/lib/prisma";
+import { createCacheStrategy } from "../src/lib/cache";
 
 const supabase = createClient(
   process.env.OPENCHESS_SUPABASE_URL!,
   process.env.OPENCHESS_SUPABASE_SERVICE_ROLE_KEY!,
 );
-
-const prisma = new PrismaClient();
 
 async function syncOpenings() {
   try {
@@ -41,6 +40,7 @@ async function syncOpenings() {
       // Database에서 urlName이 일치하는 모든 항목 찾기
       const matchingEntries = await prisma.opening.findMany({
         where: { urlName: normalizedFileName },
+        cacheStrategy: createCacheStrategy(30), // 30 seconds cache for sync operations
       });
 
       // 일치하는 항목이 있으면 mdx 필드만 업데이트

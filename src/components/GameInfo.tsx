@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { OpeningInfo, topGames } from "@/types/chess";
 import React, { JSX, useEffect, useState } from "react";
 import { Button } from "./ui/button";
@@ -124,11 +125,13 @@ const GameInfo = React.memo(
             <div>
               <hr />
               <div className="leading-7 [&:not(:first-child)]:mt-2 flex flex-row space-x-2">
-                {openingData && (
-                  <div className="text-gray-400 flex flex-row space-x-2 pr-2">
-                    {openingData.eco}
-                  </div>
-                )}
+                <div className="text-gray-400 flex flex-row space-x-2 pr-2">
+                    {openingData ? (
+                    <div className="flex items-center h-full">{openingData.eco}</div>
+                    ) : (
+                    <div className="w-8 h-7 bg-muted rounded-sm animate-pulse flex items-center justify-center" />
+                    )}
+                </div>
                 {pgn}
               </div>
               <hr className="mt-2" />

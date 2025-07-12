@@ -8,6 +8,7 @@ import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import { modelCacheStrategies } from "@/lib/cache";
 
 type OpeningPageProps = {
   params: Promise<{
@@ -17,7 +18,7 @@ type OpeningPageProps = {
 
 // 동적 라우팅을 위해 generateStaticParams 제거하고 대신 dynamicParams 설정
 export const dynamicParams = true; // 동적 파라미터 허용
-export const dynamic = 'force-dynamic'; // 모든 페이지를 동적으로 렌더링
+export const dynamic = "force-dynamic"; // 모든 페이지를 동적으로 렌더링
 
 async function getOpeningFromPath(openingPath: string) {
   if (!prisma?.opening) {
@@ -28,6 +29,7 @@ async function getOpeningFromPath(openingPath: string) {
   try {
     const opening = await prisma.opening.findFirst({
       where: { urlName: openingPath },
+      cacheStrategy: modelCacheStrategies.opening.detail,
     });
 
     console.log("DB query result:", opening);

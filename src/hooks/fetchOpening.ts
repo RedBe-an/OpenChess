@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { OpeningInfo } from "@/types/chess";
+import { modelCacheStrategies } from "@/lib/cache";
 
 /**
  * Fetch an opening from the database based on the opening info.
@@ -15,6 +16,7 @@ export const fetchOpening = async (
   try {
     /**
      * Find the opening by name, and select the name, eco, and pgn fields.
+     * Cache for 30 minutes since opening details rarely change.
      */
     const opening = await prisma.opening.findFirst({
       where: {
@@ -25,6 +27,7 @@ export const fetchOpening = async (
         eco: true,
         pgn: true,
       },
+      cacheStrategy: modelCacheStrategies.opening.detail,
     });
 
     /**
