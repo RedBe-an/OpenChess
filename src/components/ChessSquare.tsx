@@ -50,7 +50,7 @@ const ChessSquare: React.FC<ChessSquareProps> = ({
     if (!isPossibleMove) return null;
 
     return (
-      <div className="absolute inset-0 flex items-center justify-center z-0">
+      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
         {piece ? (
           <div className={CSS_CLASSES.CHESS_BOARD.CAPTURE_INDICATOR} />
         ) : (
@@ -69,12 +69,12 @@ const ChessSquare: React.FC<ChessSquareProps> = ({
   return (
     <div
       key={`${row}-${col}`}
-      className={`${CSS_CLASSES.LAYOUT.SQUARE} ${getSquareBackground()}`}
+      className={`${CSS_CLASSES.LAYOUT.SQUARE} ${getSquareBackground()} cursor-pointer hover:brightness-110 transition-all duration-150`}
       onClick={handleClick}
     >
       {shouldShowHighlight() && (
         <div
-          className={`absolute inset-0 ${CSS_CLASSES.CHESS_BOARD.SELECTED} z-0`}
+          className={`absolute inset-0 ${CSS_CLASSES.CHESS_BOARD.SELECTED} z-5`}
         />
       )}
 
@@ -83,7 +83,7 @@ const ChessSquare: React.FC<ChessSquareProps> = ({
       {piece && (
         <ChessPiece 
           piece={piece} 
-          className="z-10" 
+          className="z-20 relative" 
           priority={shouldPrioritizeImage()}
         />
       )}

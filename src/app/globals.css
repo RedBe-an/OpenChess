@@ -98,3 +98,47 @@ h6:hover .anchor-icon {
 .anchor:hover {
   text-decoration: underline;
 }
+
+/* 체스 보드 커스텀 스타일 */
+.chess-light-square {
+  background-color: #EBECD0;
+}
+
+.chess-dark-square {
+  background-color: #739552;
+}
+
+.chess-selected {
+  background-color: rgba(252, 211, 77, 0.5);
+}
+
+.chess-possible-move {
+  width: 2rem;
+  height: 2rem;
+  background-color: rgba(75, 85, 99, 0.3);
+  border-radius: 50%;
+}
+
+.chess-capture-indicator {
+  width: 100%;
+  height: 100%;
+  border: 9px solid rgba(75, 85, 99, 0.3);
+  border-radius: 50%;
+}
+
+/* 체스보드 가장자리 둥근 모서리 */
+.chess-corner-top-left {
+  border-top-left-radius: 1rem;
+}
+
+.chess-corner-top-right {
+  border-top-right-radius: 1rem;
+}
+
+.chess-corner-bottom-left {
+  border-bottom-left-radius: 1rem;
+}
+
+.chess-corner-bottom-right {
+  border-bottom-right-radius: 1rem;
+}

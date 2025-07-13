@@ -25,6 +25,7 @@ interface GameInfoProps {
   onUndo: () => void;
   ImportPGN: () => React.ReactElement;
   isWhiteTurn: boolean;
+  isLastKnownOpening?: boolean;
   capturedPieces?: {
     white: string[];
     black: string[];
@@ -49,6 +50,7 @@ const GameInfo: React.FC<GameInfoProps> = ({
   onReset,
   onUndo,
   ImportPGN,
+  isLastKnownOpening = false,
 }) => {
   const [openingData, setOpeningData] = useState<OpeningData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -145,20 +147,38 @@ const GameInfo: React.FC<GameInfoProps> = ({
     }
 
     // 현재 오프닝이 있는 경우
-    return (
-      <div className="text-base font-semibold text-foreground">
-        이 오프닝은{" "}
-        <a
-          href={`/openings/${normalizeFileName(openingInfo?.name ?? "")}`}
-          className="hover:underline"
-        >
-          <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
-            {openingInfo.name}
-          </code>
-        </a>{" "}
-        입니다.
-      </div>
-    );
+    if (isLastKnownOpening) {
+      // 마지막 알려진 오프닝인 경우 회색 글자로 표시
+      return (
+        <div className="text-base font-semibold text-muted-foreground">
+          마지막 오프닝:{" "}
+          <a
+            href={`/openings/${normalizeFileName(openingInfo?.name ?? "")}`}
+            className="hover:underline"
+          >
+            <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+              {openingInfo.name}
+            </code>
+          </a>
+        </div>
+      );
+    } else {
+      // 현재 오프닝인 경우 일반 글자로 표시
+      return (
+        <div className="text-base font-semibold text-foreground">
+          이 오프닝은{" "}
+          <a
+            href={`/openings/${normalizeFileName(openingInfo?.name ?? "")}`}
+            className="hover:underline"
+          >
+            <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+              {openingInfo.name}
+            </code>
+          </a>{" "}
+          입니다.
+        </div>
+      );
+    }
   };
 
   /**

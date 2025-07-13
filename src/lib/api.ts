@@ -56,3 +56,26 @@ export const retryAsync = async <T>(
     throw error;
   }
 };
+
+/**
+ * FEN 위치 배열에서 마지막 알려진 오프닝을 찾습니다
+ * @param fens - 확인할 FEN 위치 배열 (최신부터 과거 순서)
+ * @returns 마지막 알려진 오프닝 정보
+ */
+export const findLastKnownOpening = async (
+  fens: string[],
+): Promise<{ opening: OpeningInfo | null; topGames: TopGame[] }> => {
+  for (const fen of fens) {
+    try {
+      const { opening, topGames } = await fetchOpeningFromLichess(fen);
+      if (opening) {
+        return { opening, topGames };
+      }
+    } catch (error) {
+      console.error(`FEN ${fen}에서 오프닝 조회 실패:`, error);
+      continue;
+    }
+  }
+
+  return { opening: null, topGames: [] };
+};

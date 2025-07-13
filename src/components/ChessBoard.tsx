@@ -21,6 +21,7 @@ const Chessboard: React.FC = () => {
     possibleMoves,
     openingInfo,
     topGames,
+    isLastKnownOpening,
     selectSquare,
     makeMove,
     resetGame,
@@ -124,6 +125,7 @@ const Chessboard: React.FC = () => {
         onReset={resetGame}
         onUndo={undoMove}
         isWhiteTurn={gameState.turn === "w"}
+        isLastKnownOpening={isLastKnownOpening}
         ImportPGN={() => <PgnImportDialog onImport={loadFromPgn} />}
       />
     </div>

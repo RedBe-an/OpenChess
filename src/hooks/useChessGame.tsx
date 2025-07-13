@@ -11,7 +11,7 @@ import {
   GameState,
 } from "@/types/chess";
 import { ChessGameManager } from "@/lib/ChessGameManager";
-import { fetchOpeningFromLichess } from "@/lib/api";
+import { fetchOpeningFromLichess, findLastKnownOpening } from "@/lib/api";
 
 interface UseChessGameReturn {
   // 게임 상태
@@ -27,6 +27,7 @@ interface UseChessGameReturn {
   // 오프닝 정보
   openingInfo: OpeningInfo | null;
   topGames: TopGame[];
+  isLastKnownOpening: boolean;
 
   // 액션들
   selectSquare: (position: BoardPosition) => void;
@@ -57,6 +58,7 @@ export const useChessGame = (): UseChessGameReturn => {
   // 오프닝 정보
   const [openingInfo, setOpeningInfo] = useState<OpeningInfo | null>(null);
   const [topGames, setTopGames] = useState<TopGame[]>([]);
+  const [isLastKnownOpening, setIsLastKnownOpening] = useState<boolean>(false);
 
   /**
    * 게임 상태를 업데이트하는 헬퍼 함수
@@ -74,10 +76,12 @@ export const useChessGame = (): UseChessGameReturn => {
       const { opening, topGames: games } = await fetchOpeningFromLichess(fen);
       setOpeningInfo(opening);
       setTopGames(games);
+      setIsLastKnownOpening(false);
     } catch (error) {
       console.error("오프닝 정보를 가져오는데 실패했습니다:", error);
       setOpeningInfo(null);
       setTopGames([]);
+      setIsLastKnownOpening(false);
     }
   }, []);
 
@@ -130,6 +134,7 @@ export const useChessGame = (): UseChessGameReturn => {
     clearSelection();
     setOpeningInfo(null);
     setTopGames([]);
+    setIsLastKnownOpening(false);
   }, [gameManager, updateGameState, clearSelection]);
 
   /**
@@ -147,6 +152,7 @@ export const useChessGame = (): UseChessGameReturn => {
       if (gameManager.isInitialPosition()) {
         setOpeningInfo(null);
         setTopGames([]);
+        setIsLastKnownOpening(false);
       }
     }
   }, [gameManager, updateGameState, clearSelection]);
@@ -162,6 +168,51 @@ export const useChessGame = (): UseChessGameReturn => {
         updateGameState();
         clearSelection();
         setLastMove(null);
+        
+        // PGN 로드 후 오프닝 정보 가져오기
+        const currentFen = gameManager.getGameState().fen;
+        if (currentFen && !gameManager.isInitialPosition()) {
+          // 먼저 현재 위치에서 오프닝 정보 확인
+          fetchOpeningFromLichess(currentFen).then(({ opening, topGames }) => {
+            if (opening) {
+              // 현재 위치에서 오프닝이 발견된 경우
+              setOpeningInfo(opening);
+              setTopGames(topGames);
+              setIsLastKnownOpening(false);
+            } else {
+              // 현재 위치에서 오프닝이 없는 경우, 마지막 알려진 오프닝 찾기
+              const backtrackFens = gameManager.generateBacktrackFens();
+              findLastKnownOpening(backtrackFens).then(({ opening: lastOpening, topGames: lastTopGames }) => {
+                if (lastOpening) {
+                  // 마지막 알려진 오프닝을 openingInfo에 설정하고 플래그로 구분
+                  setOpeningInfo(lastOpening);
+                  setTopGames(lastTopGames);
+                  setIsLastKnownOpening(true);
+                } else {
+                  setOpeningInfo(null);
+                  setTopGames([]);
+                  setIsLastKnownOpening(false);
+                }
+              }).catch(error => {
+                console.error("마지막 오프닝 찾기 실패:", error);
+                setOpeningInfo(null);
+                setTopGames([]);
+                setIsLastKnownOpening(false);
+              });
+            }
+          }).catch(error => {
+            console.error("오프닝 정보 가져오기 실패:", error);
+            setOpeningInfo(null);
+            setTopGames([]);
+            setIsLastKnownOpening(false);
+          });
+        } else {
+          // 초기 위치라면 오프닝 정보 리셋
+          setOpeningInfo(null);
+          setTopGames([]);
+          setIsLastKnownOpening(false);
+        }
+        
         return true;
       }
 
@@ -187,6 +238,7 @@ export const useChessGame = (): UseChessGameReturn => {
     possibleMoves,
     openingInfo,
     topGames,
+    isLastKnownOpening,
     selectSquare,
     makeMove,
     resetGame,

@@ -162,4 +162,27 @@ export class ChessGameManager {
 
     return newGame;
   }
+
+  /**
+   * 현재 게임에서 한 수씩 되돌아가면서 FEN 위치들을 생성
+   * @returns FEN 위치 배열 (최신부터 과거 순서)
+   */
+  generateBacktrackFens(): string[] {
+    const fens: string[] = [];
+    const totalMoves = this.moveHistory.length;
+
+    // 현재 위치부터 시작해서 한 수씩 되돌아가기
+    for (let i = totalMoves; i >= 0; i--) {
+      const tempGame = new ChessGameManager();
+      const moves = this.moveHistory.slice(0, i);
+
+      moves.forEach((move) => {
+        tempGame.game.move(move);
+      });
+
+      fens.push(tempGame.game.fen());
+    }
+
+    return fens;
+  }
 }

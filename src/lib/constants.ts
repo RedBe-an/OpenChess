@@ -47,12 +47,11 @@ export const PIECE_NAMES: Record<PieceType, string> = {
 // CSS 클래스명
 export const CSS_CLASSES = {
   CHESS_BOARD: {
-    LIGHT_SQUARE: "bg-chess-white",
-    DARK_SQUARE: "bg-chess-black",
-    SELECTED: "bg-yellow-300 opacity-50",
-    POSSIBLE_MOVE_INDICATOR: "w-8 h-8 bg-black opacity-10 rounded-full",
-    CAPTURE_INDICATOR:
-      "w-full h-full border-8 border-black opacity-10 rounded-full",
+    LIGHT_SQUARE: "chess-light-square",
+    DARK_SQUARE: "chess-dark-square",
+    SELECTED: "chess-selected",
+    POSSIBLE_MOVE_INDICATOR: "chess-possible-move",
+    CAPTURE_INDICATOR: "chess-capture-indicator",
   },
   LAYOUT: {
     BOARD_CONTAINER:
