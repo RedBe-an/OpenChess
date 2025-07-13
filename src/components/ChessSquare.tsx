@@ -60,6 +60,12 @@ const ChessSquare: React.FC<ChessSquareProps> = ({
     );
   };
 
+  // 초기 게임 위치의 말들도 lazy loading으로 변경하여 preload 경고 방지
+  const shouldPrioritizeImage = () => {
+    // 모든 이미지를 lazy loading으로 처리하여 preload 경고 방지
+    return false;
+  };
+
   return (
     <div
       key={`${row}-${col}`}
@@ -74,7 +80,13 @@ const ChessSquare: React.FC<ChessSquareProps> = ({
 
       {renderPossibleMoveIndicator()}
 
-      {piece && <ChessPiece piece={piece} className="z-10" />}
+      {piece && (
+        <ChessPiece 
+          piece={piece} 
+          className="z-10" 
+          priority={shouldPrioritizeImage()}
+        />
+      )}
     </div>
   );
 };

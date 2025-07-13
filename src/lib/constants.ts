@@ -4,33 +4,33 @@ import { PieceType } from "@/types/chess";
 export const PIECE_IMAGES: Record<PieceType, { b: string; w: string }> = {
   p: {
     // pawn
-    b: "black/bp.png",
-    w: "white/wp.png",
+    b: "black/bp.svg",
+    w: "white/wp.svg",
   },
   n: {
     // knight
-    b: "black/bn.png",
-    w: "white/wn.png",
+    b: "black/bn.svg",
+    w: "white/wn.svg",
   },
   b: {
     // bishop
-    b: "black/bb.png",
-    w: "white/wb.png",
+    b: "black/bb.svg",
+    w: "white/wb.svg",
   },
   r: {
     // rook
-    b: "black/br.png",
-    w: "white/wr.png",
+    b: "black/br.svg",
+    w: "white/wr.svg",
   },
   q: {
     // queen
-    b: "black/bq.png",
-    w: "white/wq.png",
+    b: "black/bq.svg",
+    w: "white/wq.svg",
   },
   k: {
     // king
-    b: "black/bk.png",
-    w: "white/wk.png",
+    b: "black/bk.svg",
+    w: "white/wk.svg",
   },
 };
 

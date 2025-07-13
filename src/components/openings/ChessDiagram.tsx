@@ -8,12 +8,12 @@ interface PieceProps {
 }
 
 const pieceImages = {
-  p: { b: "black/bp.png", w: "white/wp.png" },
-  n: { b: "black/bn.png", w: "white/wn.png" },
-  b: { b: "black/bb.png", w: "white/wb.png" },
-  r: { b: "black/br.png", w: "white/wr.png" },
-  q: { b: "black/bq.png", w: "white/wq.png" },
-  k: { b: "black/bk.png", w: "white/wk.png" },
+  p: { b: "black/bp.svg", w: "white/wp.svg" },
+  n: { b: "black/bn.svg", w: "white/wn.svg" },
+  b: { b: "black/bb.svg", w: "white/wb.svg" },
+  r: { b: "black/br.svg", w: "white/wr.svg" },
+  q: { b: "black/bq.svg", w: "white/wq.svg" },
+  k: { b: "black/bk.svg", w: "white/wk.svg" },
 };
 
 const ChessPiece = ({ piece }: PieceProps) => {
@@ -28,7 +28,7 @@ const ChessPiece = ({ piece }: PieceProps) => {
         className="object-contain p-0.5"
         width={45}
         height={45}
-        priority
+        loading="lazy"
       />
     </div>
   );

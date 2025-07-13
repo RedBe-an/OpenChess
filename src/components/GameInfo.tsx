@@ -52,6 +52,7 @@ const GameInfo: React.FC<GameInfoProps> = ({
 }) => {
   const [openingData, setOpeningData] = useState<OpeningData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastOpeningInfo, setLastOpeningInfo] = useState<OpeningInfo | null>(null);
 
   /**
    * 오프닝 데이터 로드
@@ -61,6 +62,9 @@ const GameInfo: React.FC<GameInfoProps> = ({
       setOpeningData(null);
       return;
     }
+
+    // 현재 오프닝 정보를 마지막 오프닝으로 저장
+    setLastOpeningInfo(openingInfo);
 
     setIsLoading(true);
     try {
@@ -78,11 +82,59 @@ const GameInfo: React.FC<GameInfoProps> = ({
     loadOpeningData();
   }, [loadOpeningData]);
 
+  // 리셋 시 마지막 오프닝 정보도 초기화 (완전히 초기 상태일 때만)
+  useEffect(() => {
+    const isInitialState = !pgn || pgn.trim() === "";
+    if (isInitialState) {
+      setLastOpeningInfo(null);
+    }
+  }, [pgn]);
+
+  // 한 수 되돌리기 처리 - 오프닝이 다시 감지되면 마지막 오프닝 정보 업데이트
+  useEffect(() => {
+    if (openingInfo && lastOpeningInfo && openingInfo.name !== lastOpeningInfo.name) {
+      setLastOpeningInfo(openingInfo);
+    }
+  }, [openingInfo, lastOpeningInfo]);
+
   /**
    * 오프닝 정보 렌더링
    */
   const renderOpeningInfo = () => {
+    // pgn이 비어있는 초기 상태인지 확인
+    const isInitialState = !pgn || pgn.trim() === "";
+    
+    // 현재 오프닝이 없는 경우
     if (!openingInfo) {
+      // 초기 상태라면 기본 메시지 표시
+      if (isInitialState) {
+        return (
+          <div>
+            <p className="text-base font-semibold text-muted-foreground">
+              오프닝을 찾아보세요!
+            </p>
+          </div>
+        );
+      }
+      
+      // 마지막 오프닝이 있다면 그것을 표시
+      if (lastOpeningInfo) {
+        return (
+          <div className="text-base font-semibold text-muted-foreground">
+            마지막 오프닝:{" "}
+            <a
+              href={`/openings/${normalizeFileName(lastOpeningInfo.name ?? "")}`}
+              className="hover:underline"
+            >
+              <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+                {lastOpeningInfo.name}
+              </code>
+            </a>
+          </div>
+        );
+      }
+      
+      // 마지막 오프닝도 없다면 기본 메시지
       return (
         <div>
           <p className="text-base font-semibold text-muted-foreground">
@@ -92,6 +144,7 @@ const GameInfo: React.FC<GameInfoProps> = ({
       );
     }
 
+    // 현재 오프닝이 있는 경우
     return (
       <div className="text-base font-semibold text-foreground">
         이 오프닝은{" "}
@@ -112,7 +165,9 @@ const GameInfo: React.FC<GameInfoProps> = ({
    * PGN과 ECO 코드 렌더링
    */
   const renderPgnSection = () => {
-    if (!openingInfo) return null;
+    // 현재 오프닝이나 마지막 오프닝이 있을 때만 PGN 섹션을 표시
+    const displayOpeningInfo = openingInfo || lastOpeningInfo;
+    if (!displayOpeningInfo) return null;
 
     return (
       <div>

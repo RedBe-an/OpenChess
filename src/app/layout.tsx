@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Noto_Sans_KR, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/layout/footer";
@@ -11,12 +12,14 @@ const notoSansKR = Noto_Sans_KR({
   subsets: ["latin"],
   weight: ["300", "400", "500", "700"],
   display: "swap",
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
+  preload: false, // 모노스페이스 폰트는 필요할 때만 로드
 });
 
 export const metadata: Metadata = {
@@ -56,6 +59,12 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="ko" suppressHydrationWarning>
+      <head>
+        {/* 이미지 preload 방지를 위한 메타 태그 */}
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body
         className={`${notoSansKR.variable} ${geistMono.variable} antialiased`}
       >
@@ -70,6 +79,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <Toaster />
           </ThemeProvider>
         </ErrorBoundary>
+        <SpeedInsights />
       </body>
     </html>
   );
