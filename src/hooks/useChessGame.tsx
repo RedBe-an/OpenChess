@@ -1,69 +1,197 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Chess, Square } from "chess.js";
-import { Board, OpeningInfo, topGames } from "@/types/chess";
-import { fenToBoard } from "@/lib/chess";
+import { useState, useEffect, useCallback } from "react";
+import { Square } from "chess.js";
+import {
+  Board,
+  OpeningInfo,
+  TopGame,
+  ChessMove,
+  BoardPosition,
+  GameState,
+} from "@/types/chess";
+import { ChessGameManager } from "@/lib/ChessGameManager";
+import { fetchOpeningFromLichess } from "@/lib/api";
 
-export const useChessGame = () => {
-  const [game, setGame] = useState(new Chess());
-  const [board, setBoard] = useState<Board>(fenToBoard(game.fen()));
-  const [selectedSquare, setSelectedSquare] = useState<[number, number] | null>(
+interface UseChessGameReturn {
+  // 게임 상태
+  gameManager: ChessGameManager;
+  board: Board;
+  gameState: GameState;
+
+  // UI 상태
+  selectedSquare: BoardPosition | null;
+  lastMove: ChessMove | null;
+  possibleMoves: Square[];
+
+  // 오프닝 정보
+  openingInfo: OpeningInfo | null;
+  topGames: TopGame[];
+
+  // 액션들
+  selectSquare: (position: BoardPosition) => void;
+  makeMove: (from: BoardPosition, to: BoardPosition) => boolean;
+  resetGame: () => void;
+  undoMove: () => void;
+  loadFromPgn: (pgn: string) => boolean;
+  clearSelection: () => void;
+}
+
+export const useChessGame = (): UseChessGameReturn => {
+  // 게임 매니저 초기화
+  const [gameManager] = useState(() => new ChessGameManager());
+
+  // 게임 상태
+  const [board, setBoard] = useState<Board>(gameManager.getBoard());
+  const [gameState, setGameState] = useState<GameState>(
+    gameManager.getGameState(),
+  );
+
+  // UI 상태
+  const [selectedSquare, setSelectedSquare] = useState<BoardPosition | null>(
     null,
   );
-  const [lastMove, setLastMove] = useState<{
-    from: [number, number];
-    to: [number, number];
-  } | null>(null);
-  const [fen, setFen] = useState<string>(game.fen());
-  const [pgn, setPgn] = useState<string>(game.pgn());
+  const [lastMove, setLastMove] = useState<ChessMove | null>(null);
   const [possibleMoves, setPossibleMoves] = useState<Square[]>([]);
+
+  // 오프닝 정보
   const [openingInfo, setOpeningInfo] = useState<OpeningInfo | null>(null);
-  const [topGames, settopGames] = useState<topGames[]>([]);
+  const [topGames, setTopGames] = useState<TopGame[]>([]);
 
-  const fetchOpeningInfo = async (fen: string) => {
+  /**
+   * 게임 상태를 업데이트하는 헬퍼 함수
+   */
+  const updateGameState = useCallback(() => {
+    setBoard(gameManager.getBoard());
+    setGameState(gameManager.getGameState());
+  }, [gameManager]);
+
+  /**
+   * 오프닝 정보를 가져오는 함수
+   */
+  const fetchOpeningInfo = useCallback(async (fen: string) => {
     try {
-      const response = await fetch(
-        `https://explorer.lichess.ovh/masters?fen=${encodeURIComponent(fen)}`,
-      );
-      const data = await response.json();
-
-      if (data.opening) {
-        setOpeningInfo({
-          eco: data.opening.eco,
-          name: data.opening.name,
-        });
-      }
-
-      const recentGames = data.recentGames?.slice(0, 5) || [];
-      settopGames(recentGames);
+      const { opening, topGames: games } = await fetchOpeningFromLichess(fen);
+      setOpeningInfo(opening);
+      setTopGames(games);
     } catch (error) {
       console.error("오프닝 정보를 가져오는데 실패했습니다:", error);
+      setOpeningInfo(null);
+      setTopGames([]);
     }
-  };
+  }, []);
 
+  /**
+   * 선택 상태를 클리어하는 함수
+   */
+  const clearSelection = useCallback(() => {
+    setSelectedSquare(null);
+    setPossibleMoves([]);
+  }, []);
+
+  /**
+   * 사각형을 선택하는 함수
+   */
+  const selectSquare = useCallback(
+    (position: BoardPosition) => {
+      setSelectedSquare(position);
+      const moves = gameManager.getPossibleMoves(position);
+      setPossibleMoves(moves);
+    },
+    [gameManager],
+  );
+
+  /**
+   * 체스 이동을 실행하는 함수
+   */
+  const makeMove = useCallback(
+    (from: BoardPosition, to: BoardPosition): boolean => {
+      const success = gameManager.makeMove(from, to);
+
+      if (success) {
+        updateGameState();
+        setLastMove({ from, to });
+        clearSelection();
+        return true;
+      }
+
+      return false;
+    },
+    [gameManager, updateGameState, clearSelection],
+  );
+
+  /**
+   * 게임을 리셋하는 함수
+   */
+  const resetGame = useCallback(() => {
+    gameManager.reset();
+    updateGameState();
+    setLastMove(null);
+    clearSelection();
+    setOpeningInfo(null);
+    setTopGames([]);
+  }, [gameManager, updateGameState, clearSelection]);
+
+  /**
+   * 마지막 이동을 취소하는 함수
+   */
+  const undoMove = useCallback(() => {
+    const success = gameManager.undoLastMove();
+
+    if (success) {
+      updateGameState();
+      setLastMove(null);
+      clearSelection();
+
+      // 초기 위치라면 오프닝 정보 리셋
+      if (gameManager.isInitialPosition()) {
+        setOpeningInfo(null);
+        setTopGames([]);
+      }
+    }
+  }, [gameManager, updateGameState, clearSelection]);
+
+  /**
+   * PGN에서 게임을 로드하는 함수
+   */
+  const loadFromPgn = useCallback(
+    (pgn: string): boolean => {
+      const success = gameManager.loadFromPgn(pgn);
+
+      if (success) {
+        updateGameState();
+        clearSelection();
+        setLastMove(null);
+        return true;
+      }
+
+      return false;
+    },
+    [gameManager, updateGameState, clearSelection],
+  );
+
+  // FEN이 변경될 때마다 오프닝 정보 가져오기
   useEffect(() => {
-    fetchOpeningInfo(fen);
-  }, [fen]);
+    const fen = gameState.fen;
+    if (fen && !gameManager.isInitialPosition()) {
+      fetchOpeningInfo(fen);
+    }
+  }, [gameState.fen, fetchOpeningInfo, gameManager]);
 
   return {
-    game,
+    gameManager,
     board,
+    gameState,
     selectedSquare,
     lastMove,
-    fen,
-    pgn,
     possibleMoves,
     openingInfo,
     topGames,
-    setGame,
-    setBoard,
-    setSelectedSquare,
-    setLastMove,
-    setFen,
-    setPgn,
-    setPossibleMoves,
-    setOpeningInfo,
-    fetchOpeningInfo,
+    selectSquare,
+    makeMove,
+    resetGame,
+    undoMove,
+    loadFromPgn,
+    clearSelection,
   };
 };
