@@ -14,6 +14,7 @@ model opening {
   urlName String
   pgn     String  @unique
   mdx     String?
+  fen     String
 
   @@map("opening")
 }

@@ -63,3 +63,5 @@ prisma/migrations/
 
 # Vercel
 .vercel
+
+secret.txt
