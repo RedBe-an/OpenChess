@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { OpeningInfo, TopGame } from "@/types/chess";
+import type { OpeningInfo, TopGame } from "@/types/chess";
 import { Button } from "./ui/button";
 import { CircleHelp, RotateCcw } from "lucide-react";
 import { ShareButton } from "./ShareButton";

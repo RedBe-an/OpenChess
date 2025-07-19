@@ -124,9 +124,23 @@ bun dev
 6. 빌드
 
 ```bash
-npm run build
-# 또는
-bun build
+# 기본 빌드 (추천)
+bun run build
+
+# 프로덕션 빌드 (전체 DB 설정 포함)
+bun run build:prod
+
+# 빠른 빌드 (DB 마이그레이션 제외)
+bun run build:fast
+
+# 번들 분석
+bun run analyze
+
+# Windows에서 빌드
+build.bat
+
+# Linux/Mac에서 빌드
+./build.sh
 ```
 
 ## 🤝 기여하기
