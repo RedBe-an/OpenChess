@@ -1,10 +1,10 @@
-import { Chess, Square, Move } from "chess.js";
-import {
+import { Chess, type Square, Move } from "chess.js";
+import type {
   Board,
   GameState,
   ChessMove,
   BoardPosition,
-  INITIAL_FEN,
+  INITIAL_FEN
 } from "@/types/chess";
 import {
   fenToBoard,

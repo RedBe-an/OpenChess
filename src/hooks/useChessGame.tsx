@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Square } from "chess.js";
-import {
+import type { Square } from "chess.js";
+import type {
   Board,
   OpeningInfo,
   TopGame,

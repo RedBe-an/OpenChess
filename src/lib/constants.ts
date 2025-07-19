@@ -1,4 +1,4 @@
-import { PieceType } from "@/types/chess";
+import { type PieceType } from "@/types/chess";
 
 // 체스 기물 이미지 경로 매핑
 export const PIECE_IMAGES: Record<PieceType, { b: string; w: string }> = {

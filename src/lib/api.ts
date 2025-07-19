@@ -1,4 +1,4 @@
-import { OpeningInfo, TopGame, LichessOpeningResponse } from "@/types/chess";
+import type { OpeningInfo, TopGame, LichessOpeningResponse } from "@/types/chess";
 
 /**
  * Lichess 마스터 데이터베이스에서 오프닝 정보를 가져옵니다

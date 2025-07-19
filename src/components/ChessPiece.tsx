@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Piece } from "@/types/chess";
+import type { Piece } from "@/types/chess";
 import { PIECE_IMAGES, PIECE_NAMES } from "@/lib/constants";
 
 interface ChessPieceProps {

@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { OpeningInfo } from "@/types/chess";
+import { type OpeningInfo } from "@/types/chess";
 import { modelCacheStrategies } from "@/lib/cache";
 
 interface FetchOpeningResult extends OpeningInfo {

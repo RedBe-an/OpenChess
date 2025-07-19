@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { Square } from "chess.js";
-import { Piece, BoardPosition } from "@/types/chess";
+import type { Piece, BoardPosition } from "@/types/chess";
 import { CSS_CLASSES } from "@/lib/constants";
 import ChessPiece from "./ChessPiece";
 
