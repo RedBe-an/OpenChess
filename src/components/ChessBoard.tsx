@@ -2,7 +2,7 @@
 
 import React, { useCallback } from "react";
 import { useChessGame } from "@/hooks/useChessGame";
-import { BoardPosition, BOARD_SIZE } from "@/types/chess";
+import { type BoardPosition, BOARD_SIZE } from "@/types/chess";
 import { coordinatesToSquare } from "@/lib/chess";
 import { CSS_CLASSES } from "@/lib/constants";
 import ChessSquare from "./ChessSquare";
